@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define DECK_MAX_CNT 56
+
 /* 필드에 놓여있는 카드배열들인 field 들을 얻은 사용자의 덱인 deck에 추가함  */
 void TakeCardsInField(int *deck, int *field) {
 	int i;
@@ -9,22 +11,26 @@ void TakeCardsInField(int *deck, int *field) {
 	int fieldsize = sizeof(field) / sizeof(field[0]); // field 배열의 크기
 
 	// deck배열 에서 몇번째부터 카드가 없는지 
-	for (i = 0; i < decksize; i++) {
+	/*for (i = 0; i < decksize; i++) {
 		if (deck[i] == 0) {
 			deckcount = i;
 			break;
 		}
-	}
+	}*/
+	deckcount = DeckCount(deck); // 위 구문을 함수로 대체했음
+
+
 	// field배열 에서 몇번째부터 카드가 없는지 
-	for (i = 0; i < fieldsize; i++) {
+	for (i = 0; i < fieldsize; i++) { //여기도 deckCount처럼 함수로 대체 가능함
 		if (field[i] == 0) {
 			fieldcount = i;
 			break;
 		}
 	}
+
 	// field배열안 변수들 deck배열에 넣기
 	for (i = 0; i < fieldsize; i++) {
-		deck[deckcount + i] = field[i]
+		deck[deckcount + i] = field[i];
 	}
 }
 
@@ -45,17 +51,36 @@ bool IsFiveFruits(int *field) {
 
 /* 인자로 들어온 deck의 카드의 개수 반환 */
 int DeckCount(int *deck) {
+	int deckCount = 0;
+	int decksize = sizeof(deck) / sizeof(deck[0]); // deck 배열의 크기
+	int i;
 
+	for (i = 0; i < decksize; i++) {
+		if (deck[i] == 0) {
+			deckCount = i;
+			break;
+		}
+	}
+	return deckCount;
 }
 
 /* 인자로 들어온 deck의 최상위에 push 함 */
-int Push(int *deck) {
-
+int Push(int *deck, int cardNum) { //보고서에는 cardNum같은 변수 없음..
+	int deckCount = DeckCount(deck);
+	if(deckCount != DECK_MAX_CNT) //덱 최대값이 아니라면
+		deck[deckCount + 1] = cardNum;
 }
 
 /* 인자로 들어온 deck의 최상위값을 pop 함 */
 int Pop(int *deck) {
-
+	int i;
+	int deckCount = DeckCount(deck);
+	int ret = deck[0];
+	for (i = 0; i < deckCount - 1; i++) // 제일 앞에 있는 값을 pop하고 뒤에 있는 값들을 한칸씩 앞으로 댕겨줌
+	{
+		deck[i] = deck[i + 1];
+	}
+	return ret;
 }
 
 /* index에 해당한 카드의 과일개수 리턴 */
