@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <windows.h>
 #include <stdbool.h>
 
 #define DECK_MAX_CNT 56
@@ -137,7 +138,57 @@ int GetFruitType(int index) {
 
 /* 사용자의 이름 수정 */
 void ModifyName() {
-
+	/* 사용자의 디폴트 네임 */
+	char defaultName1[] = "사용자1";
+	char defaultName2[] = "사용자2";
+	char defaultName3[] = "사용자3";
+	char defaultName4[] = "사용자4";
+	int num;
+	
+	printf("사용자1: %s\n", &defaultName1);
+	printf("사용자2: %s\n", &defaultName2);
+	printf("사용자3: %s\n", &defaultName3);
+	printf("사용자4: %s\n", &defaultName4);
+	do {
+			
+			printf("수정할 사용자의 번호를 입력해주세요(1~4)\n");
+			printf("해당 항목에서 벗어나시려면 0을 눌러주세요.\n");
+			scanf("%d", &num);
+			switch (num) {
+			case 0 :
+				break;
+			case 1 :
+				defaultName1[0] = '\0'; //배열 초기화
+				printf("사용자%d의 정보를 수정하겠습니다.\n", &num);
+				printf("변경할 이름을 적어주십시오. : ");
+				scanf("%s", &defaultName1); //사용자가 입력한 정보로 변경
+				break;
+			case 2 :
+				defaultName2[0] = '\0';
+				printf("사용자%d의 정보를 수정하겠습니다.\n", &num);
+				printf("변경할 이름을 적어주십시오. : ");
+				scanf("%s", &defaultName2);
+				break;
+			case 3 :
+				defaultName3[0] = '\0';
+				printf("사용자%d의 정보를 수정하겠습니다.\n", &num);
+				printf("변경할 이름을 적어주십시오. : ");
+				scanf("%s", &defaultName3);
+				break;
+			case 4 :
+				defaultName4[0] = '\0';
+				printf("사용자%d의 정보를 수정하겠습니다.\n", &num);
+				printf("변경할 이름을 적어주십시오. : ");
+				scanf("%s", &defaultName4);
+				break;
+			default:
+				printf("사용자는 1부터 4까지 존재합니다.\n");
+			}
+			if (num == 0)//0입력시 종료
+				break;
+		
+	} while (num<0||num>4);
+	
 }
 
 /* 게임 방법 설명 출력(txt 파일 읽어옴) */
@@ -152,4 +203,26 @@ void GameStart() {
 
 /*  메인함수 ^^ */
 void main(void) {
+	int select;
+
+	printf("할리갈리\n\n");
+	printf("1.게임 시작\n");
+	printf("2.사용자 이름 수정\n");
+	printf("3.게임 방법 설명\n");
+	printf("원하시는 항목을 선택해주세요.:");
+	scanf("%d", &select);
+
+	switch (select) {
+	case 1:
+		GameStart();
+		break;
+	case 2:
+		ModifyName();
+		break;
+	case 3:
+		GameDescription();
+		break;
+	default:
+		printf("1에서 3까지의 번호를 선택해주세요.\n");
+	}
 }
