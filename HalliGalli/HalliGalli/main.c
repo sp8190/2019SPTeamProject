@@ -209,20 +209,22 @@ void main(void) {
 	printf("1.게임 시작\n");
 	printf("2.사용자 이름 수정\n");
 	printf("3.게임 방법 설명\n");
+	printf("4.게임 종료\n");
 	printf("원하시는 항목을 선택해주세요.:");
 	scanf("%d", &select);
 
-	switch (select) {
-	case 1:
-		GameStart();
-		break;
-	case 2:
-		ModifyName();
-		break;
-	case 3:
-		GameDescription();
-		break;
-	default:
-		printf("1에서 3까지의 번호를 선택해주세요.\n");
-	}
+	do {
+		if (select == 1)
+			GameStart();
+		else if (select == 2)
+			ModifyName();
+		else if (select == 3)
+			GameDescription();
+		else if (select == 4) {
+			printf("게임을 종료합니다.\n");
+			return 0;
+		}
+		else
+			printf("1에서 3까지의 번호를 선택해주세요.\n");
+	} while (0);
 }
