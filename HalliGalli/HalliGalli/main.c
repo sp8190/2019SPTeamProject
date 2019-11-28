@@ -1,48 +1,53 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
 #include <stdbool.h>
 
 #define DECK_MAX_CNT 56
+#define MAX_NAME_LENGTH 10   // 10±ÛÀÚ Á¦ÇÑÀ¸·Î Àâ¾ÒÀ¸³ª, ÇÑ±ÛÀ» °í·ÁÇÏ¿© 20À» ÀâÀ½
+#define BUFSIZE 128
 
-/* í•„ë“œì— ë†“ì—¬ìˆëŠ” ì¹´ë“œë°°ì—´ë“¤ì¸ field ë“¤ì„ ì–»ì€ ì‚¬ìš©ìì˜ ë±ì¸ deckì— ì¶”ê°€í•¨  */
+char *user[4] = { "»ç¿ëÀÚ1", "»ç¿ëÀÚ2", "»ç¿ëÀÚ3", "»ç¿ëÀÚ4" }; // ÀÌ¸§Àº ¸ğµç ÇÔ¼ö¿¡¼­ ÂüÁ¶ÇÏ±â ‹š¹®¿¡ Àü¿ªÀ¸·Î »°½À´Ï´Ù.
+
+/* ÇÊµå¿¡ ³õ¿©ÀÖ´Â Ä«µå¹è¿­µéÀÎ field µéÀ» ¾òÀº »ç¿ëÀÚÀÇ µ¦ÀÎ deck¿¡ Ãß°¡ÇÔ  */
 void TakeCardsInField(int *deck, int *field) {
 	int i;
-	int deckcount = 0, fieldcount = 0; // ì–´ë””ì„œ 0ì´ ì²´í¬ê°€ ë˜ëŠ”ê°€
-	int decksize = sizeof(deck) / sizeof(deck[0]); // deck ë°°ì—´ì˜ í¬ê¸°
-	int fieldsize = sizeof(field) / sizeof(field[0]); // field ë°°ì—´ì˜ í¬ê¸°
+	int deckcount = 0, fieldcount = 0; // ¾îµğ¼­ 0ÀÌ Ã¼Å©°¡ µÇ´Â°¡
+	int decksize = sizeof(deck) / sizeof(deck[0]); // deck ¹è¿­ÀÇ Å©±â
+	int fieldsize = sizeof(field) / sizeof(field[0]); // field ¹è¿­ÀÇ Å©±â
 
-	// deckë°°ì—´ ì—ì„œ ëª‡ë²ˆì§¸ë¶€í„° ì¹´ë“œê°€ ì—†ëŠ”ì§€ 
+	// deck¹è¿­ ¿¡¼­ ¸î¹øÂ°ºÎÅÍ Ä«µå°¡ ¾ø´ÂÁö 
 	/*for (i = 0; i < decksize; i++) {
 		if (deck[i] == 0) {
 			deckcount = i;
 			break;
 		}
 	}*/
-	deckcount = DeckCount(deck); // ìœ„ êµ¬ë¬¸ì„ í•¨ìˆ˜ë¡œ ëŒ€ì²´í–ˆìŒ
+	deckcount = DeckCount(deck); // À§ ±¸¹®À» ÇÔ¼ö·Î ´ëÃ¼ÇßÀ½
 
 
-	// fieldë°°ì—´ ì—ì„œ ëª‡ë²ˆì§¸ë¶€í„° ì¹´ë“œê°€ ì—†ëŠ”ì§€ 
-	for (i = 0; i < fieldsize; i++) { //ì—¬ê¸°ë„ deckCountì²˜ëŸ¼ í•¨ìˆ˜ë¡œ ëŒ€ì²´ ê°€ëŠ¥í•¨
+	// field¹è¿­ ¿¡¼­ ¸î¹øÂ°ºÎÅÍ Ä«µå°¡ ¾ø´ÂÁö 
+	for (i = 0; i < fieldsize; i++) { //¿©±âµµ deckCountÃ³·³ ÇÔ¼ö·Î ´ëÃ¼ °¡´ÉÇÔ
 		if (field[i] == 0) {
 			fieldcount = i;
 			break;
 		}
 	}
 
-	// fieldë°°ì—´ì•ˆ ë³€ìˆ˜ë“¤ deckë°°ì—´ì— ë„£ê¸°
+	// field¹è¿­¾È º¯¼öµé deck¹è¿­¿¡ ³Ö±â
 	for (i = 0; i < fieldsize; i++) {
 		deck[deckcount + i] = field[i];
 	}
 }
 
-/* int[4] í˜•íƒœì¸ fieldì— ê°™ì€ ê³¼ì¼ì¢…ë¥˜ê°€ 5ê°œê°€ ìˆëŠ”ì§€ í™•ì¸ */
+/* int[4] ÇüÅÂÀÎ field¿¡ °°Àº °úÀÏÁ¾·ù°¡ 5°³°¡ ÀÖ´ÂÁö È®ÀÎ */
 bool IsFiveFruits(int *field) {
 	int fieldCpy[4] = { 0 };
 	int i;
 	for (i = 0; i < 4; i++) {
 		fieldCpy[GetFruitType(field[i])] += GetFruitCnt(field[i]);
 	}
-	//ì´í•© 5ê°œì¸ ê³¼ì¼ ìˆëŠ”ì§€ í™•ì¸
+	//ÃÑÇÕ 5°³ÀÎ °úÀÏ ÀÖ´ÂÁö È®ÀÎ
 	for (i = 0; i < 4; i++) {
 		if (fieldCpy[i] == 5)
 			return true;
@@ -50,10 +55,10 @@ bool IsFiveFruits(int *field) {
 	return false;
 }
 
-/* ì¸ìë¡œ ë“¤ì–´ì˜¨ deckì˜ ì¹´ë“œì˜ ê°œìˆ˜ ë°˜í™˜ */
+/* ÀÎÀÚ·Î µé¾î¿Â deckÀÇ Ä«µåÀÇ °³¼ö ¹İÈ¯ */
 int DeckCount(int *deck) {
 	int deckCount = 0;
-	int decksize = sizeof(deck) / sizeof(deck[0]); // deck ë°°ì—´ì˜ í¬ê¸°
+	int decksize = sizeof(deck) / sizeof(deck[0]); // deck ¹è¿­ÀÇ Å©±â
 	int i;
 
 	for (i = 0; i < decksize; i++) {
@@ -65,36 +70,36 @@ int DeckCount(int *deck) {
 	return deckCount;
 }
 
-/* ì¸ìë¡œ ë“¤ì–´ì˜¨ deckì˜ ìµœìƒìœ„ì— push í•¨ */
-int Push(int *deck, int cardNum) { //ë³´ê³ ì„œì—ëŠ” cardNumê°™ì€ ë³€ìˆ˜ ì—†ìŒ..
+/* ÀÎÀÚ·Î µé¾î¿Â deckÀÇ ÃÖ»óÀ§¿¡ push ÇÔ */
+int Push(int *deck, int cardNum) { //º¸°í¼­¿¡´Â cardNum°°Àº º¯¼ö ¾øÀ½..
 	int deckCount = DeckCount(deck);
-	if(deckCount != DECK_MAX_CNT) //ë± ìµœëŒ€ê°’ì´ ì•„ë‹ˆë¼ë©´
+	if (deckCount != DECK_MAX_CNT) //µ¦ ÃÖ´ë°ªÀÌ ¾Æ´Ï¶ó¸é
 		deck[deckCount + 1] = cardNum;
 }
 
-/* ì¸ìë¡œ ë“¤ì–´ì˜¨ deckì˜ ìµœìƒìœ„ê°’ì„ pop í•¨ */
+/* ÀÎÀÚ·Î µé¾î¿Â deckÀÇ ÃÖ»óÀ§°ªÀ» pop ÇÔ */
 int Pop(int *deck) {
 	int i;
 	int deckCount = DeckCount(deck);
 	int ret = deck[0];
-	for (i = 0; i < deckCount - 1; i++) // ì œì¼ ì•ì— ìˆëŠ” ê°’ì„ popí•˜ê³  ë’¤ì— ìˆëŠ” ê°’ë“¤ì„ í•œì¹¸ì”© ì•ìœ¼ë¡œ ëŒ•ê²¨ì¤Œ
+	for (i = 0; i < deckCount - 1; i++) // Á¦ÀÏ ¾Õ¿¡ ÀÖ´Â °ªÀ» popÇÏ°í µÚ¿¡ ÀÖ´Â °ªµéÀ» ÇÑÄ­¾¿ ¾ÕÀ¸·Î ´ó°ÜÁÜ
 	{
 		deck[i] = deck[i + 1];
 	}
 	return ret;
 }
 
-/* indexì— í•´ë‹¹í•œ ì¹´ë“œì˜ ê³¼ì¼ê°œìˆ˜ ë¦¬í„´ */
+/* index¿¡ ÇØ´çÇÑ Ä«µåÀÇ °úÀÏ°³¼ö ¸®ÅÏ */
 int GetFruitCnt(int index) {
 
-	//1ê°œì§œë¦¬ 5ê°œ, 2ê°œì§œë¦¬ 3ê°œ, 3ê°œì§œë¦¬ 3ê°œ, 4ê°œì§œë¦¬ 2ê°œ, 5ê°œì§œë¦¬ 1ê°œ ì¡´ì¬
-	//0 ~ 55 ì˜ index ê°’ì„ ì¸ìë¡œ ë°›ìŒ
-	// %14 í•´ì„œ..
-	// 0,1,2,3,4 = 1ê°œ
-	// 5,6,7	 = 2ê°œ
-	// 8,9,10	 = 3ê°œ
-	// 11, 12	 = 4ê°œ
-	// 13		 = 5ê°œ
+	//1°³Â¥¸® 5°³, 2°³Â¥¸® 3°³, 3°³Â¥¸® 3°³, 4°³Â¥¸® 2°³, 5°³Â¥¸® 1°³ Á¸Àç
+	//0 ~ 55 ÀÇ index °ªÀ» ÀÎÀÚ·Î ¹ŞÀ½
+	// %14 ÇØ¼­..
+	// 0,1,2,3,4 = 1°³
+	// 5,6,7	 = 2°³
+	// 8,9,10	 = 3°³
+	// 11, 12	 = 4°³
+	// 13		 = 5°³
 
 	switch (index % 14) {
 	case 0:
@@ -122,98 +127,90 @@ int GetFruitCnt(int index) {
 	}
 }
 
-/* indexì— í•´ë‹¹í•œ ì¹´ë“œì˜ ê³¼ì¼ì¢…ë¥˜ ë¦¬í„´ */
+/* index¿¡ ÇØ´çÇÑ Ä«µåÀÇ °úÀÏÁ¾·ù ¸®ÅÏ */
 int GetFruitType(int index) {
 
-	// 14ê°œì˜ ì¹´ë“œê°€ 4ê°œì˜ ì¢…ë¥˜ë¡œ êµ¬ë¶„ë¨
-	// 0 ~ 55 ì˜ index ê°’ì„ ì¸ìë¡œ ë°›ìŒ
-	// 0 ~ 13 : ê³¼ì¼1
-	// 14 ~ 27 : ê³¼ì¼2
-	// 28 ~ 41 : ê³¼ì¼3
-	// 42 ~ 55 : ê³¼ì¼4
-	// ë°˜í™˜ê°’ : 0, 1, 2, 3
+	// 14°³ÀÇ Ä«µå°¡ 4°³ÀÇ Á¾·ù·Î ±¸ºĞµÊ
+	// 0 ~ 55 ÀÇ index °ªÀ» ÀÎÀÚ·Î ¹ŞÀ½
+	// 0 ~ 13 : °úÀÏ1
+	// 14 ~ 27 : °úÀÏ2
+	// 28 ~ 41 : °úÀÏ3
+	// 42 ~ 55 : °úÀÏ4
+	// ¹İÈ¯°ª : 0, 1, 2, 3
 
 	return (int)(index / 14);
 }
 
-/* ì‚¬ìš©ìì˜ ì´ë¦„ ìˆ˜ì • */
+/* »ç¿ëÀÚÀÇ ÀÌ¸§ ¼öÁ¤ */
 void ModifyName() {
-	/* ì‚¬ìš©ìì˜ ë””í´íŠ¸ ë„¤ì„ */
-	char defaultName1[] = "ì‚¬ìš©ì1";
-	char defaultName2[] = "ì‚¬ìš©ì2";
-	char defaultName3[] = "ì‚¬ìš©ì3";
-	char defaultName4[] = "ì‚¬ìš©ì4";
+	/* »ç¿ëÀÚÀÇ µğÆúÆ® ³×ÀÓ */
 	int num;
-	
-	printf("ì‚¬ìš©ì1: %s\n", &defaultName1);
-	printf("ì‚¬ìš©ì2: %s\n", &defaultName2);
-	printf("ì‚¬ìš©ì3: %s\n", &defaultName3);
-	printf("ì‚¬ìš©ì4: %s\n", &defaultName4);
 	do {
-			
-			printf("ìˆ˜ì •í•  ì‚¬ìš©ìì˜ ë²ˆí˜¸ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”(1~4)\n");
-			printf("í•´ë‹¹ í•­ëª©ì—ì„œ ë²—ì–´ë‚˜ì‹œë ¤ë©´ 0ì„ ëˆŒëŸ¬ì£¼ì„¸ìš”.\n");
-			scanf("%d", &num);
-			switch (num) {
-			case 0 :
-				break;
-			case 1 :
-				defaultName1[0] = '\0'; //ë°°ì—´ ì´ˆê¸°í™”
-				printf("ì‚¬ìš©ì%dì˜ ì •ë³´ë¥¼ ìˆ˜ì •í•˜ê² ìŠµë‹ˆë‹¤.\n", &num);
-				printf("ë³€ê²½í•  ì´ë¦„ì„ ì ì–´ì£¼ì‹­ì‹œì˜¤. : ");
-				scanf("%s", &defaultName1); //ì‚¬ìš©ìê°€ ì…ë ¥í•œ ì •ë³´ë¡œ ë³€ê²½
-				break;
-			case 2 :
-				defaultName2[0] = '\0';
-				printf("ì‚¬ìš©ì%dì˜ ì •ë³´ë¥¼ ìˆ˜ì •í•˜ê² ìŠµë‹ˆë‹¤.\n", &num);
-				printf("ë³€ê²½í•  ì´ë¦„ì„ ì ì–´ì£¼ì‹­ì‹œì˜¤. : ");
-				scanf("%s", &defaultName2);
-				break;
-			case 3 :
-				defaultName3[0] = '\0';
-				printf("ì‚¬ìš©ì%dì˜ ì •ë³´ë¥¼ ìˆ˜ì •í•˜ê² ìŠµë‹ˆë‹¤.\n", &num);
-				printf("ë³€ê²½í•  ì´ë¦„ì„ ì ì–´ì£¼ì‹­ì‹œì˜¤. : ");
-				scanf("%s", &defaultName3);
-				break;
-			case 4 :
-				defaultName4[0] = '\0';
-				printf("ì‚¬ìš©ì%dì˜ ì •ë³´ë¥¼ ìˆ˜ì •í•˜ê² ìŠµë‹ˆë‹¤.\n", &num);
-				printf("ë³€ê²½í•  ì´ë¦„ì„ ì ì–´ì£¼ì‹­ì‹œì˜¤. : ");
-				scanf("%s", &defaultName4);
-				break;
-			default:
-				printf("ì‚¬ìš©ìëŠ” 1ë¶€í„° 4ê¹Œì§€ ì¡´ì¬í•©ë‹ˆë‹¤.\n");
+		do {
+			printf("»ç¿ëÀÚ1: %s\n", user[0]);
+			printf("»ç¿ëÀÚ2: %s\n", user[1]);
+			printf("»ç¿ëÀÚ3: %s\n", user[2]);
+			printf("»ç¿ëÀÚ4: %s\n", user[3]);
+
+			printf("¼öÁ¤ÇÒ »ç¿ëÀÚÀÇ ¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä(1~4)\n");
+			printf("ÇØ´ç Ç×¸ñ¿¡¼­ ¹ş¾î³ª½Ã·Á¸é 0À» ´­·¯ÁÖ¼¼¿ä.\n");
+			scanf_s("%d", &num);
+		} while (num < 0 || num > 4);
+
+		if (num == 0)
+			break;
+
+		char *modName;
+		do {
+			int i, myInputLen = 0;
+			modName = "\0";
+			modName = malloc(sizeof(char) * BUFSIZE); // +1Àº ¸Ç µÚÀÇ NULL °í·ÁÇÑ °Í
+			user[num - 1] = NULL; //¹è¿­ ÃÊ±âÈ­
+			printf("»ç¿ëÀÚ%dÀÇ Á¤º¸¸¦ ¼öÁ¤ÇÏ°Ú½À´Ï´Ù.\n", num);
+			printf("º¯°æÇÒ ÀÌ¸§À» Àû¾îÁÖ½Ê½Ã¿À. : ");
+			scanf_s("%s", modName, sizeof(char)*BUFSIZE); //»ç¿ëÀÚ°¡ ÀÔ·ÂÇÑ Á¤º¸·Î º¯°æ
+			myInputLen = strlen(modName);
+			for (i = 0; i < strlen(modName); i++) {
+				if (((int)modName[i]) <= 32 || ((int)modName[i]) >= 127) { // Ãâ·Â°¡´É ¾Æ½ºÅ°ÄÚµå ¾Æ´Ñ ¹®ÀÚ
+					i++;
+					myInputLen--;
+				}
 			}
-			if (num == 0)//0ì…ë ¥ì‹œ ì¢…ë£Œ
+			if (myInputLen <= MAX_NAME_LENGTH) {
 				break;
-		
-	} while (num<0||num>4);
-	
+			}
+			else {
+				printf("»ç¿ëÀÚÀÇ ÀÌ¸§Àº %d±ÛÀÚ°¡ ÃÖ´ëÀÔ´Ï´Ù. ´Ù½ÃÀÔ·ÂÇØÁÖ¼¼¿ä.\n\n", MAX_NAME_LENGTH);
+			}
+		} while (true);
+		user[num-1] = modName;
+
+	} while (true);
+
 }
 
-/* ê²Œì„ ë°©ë²• ì„¤ëª… ì¶œë ¥(txt íŒŒì¼ ì½ì–´ì˜´) */
+/* °ÔÀÓ ¹æ¹ı ¼³¸í Ãâ·Â(txt ÆÄÀÏ ÀĞ¾î¿È) */
 void GameDescription() {
 
 }
 
-/* halli galli ê²Œì„ ì‹œì‘í•˜ëŠ”í•¨ìˆ˜ */
+/* halli galli °ÔÀÓ ½ÃÀÛÇÏ´ÂÇÔ¼ö */
 void GameStart() {
 
 }
 
-/*  ë©”ì¸í•¨ìˆ˜ ^^ */
+/*  ¸ŞÀÎÇÔ¼ö ^^ */
 void main(void) {
-	int select;
-
-	printf("í• ë¦¬ê°ˆë¦¬\n\n");
-	printf("1.ê²Œì„ ì‹œì‘\n");
-	printf("2.ì‚¬ìš©ì ì´ë¦„ ìˆ˜ì •\n");
-	printf("3.ê²Œì„ ë°©ë²• ì„¤ëª…\n");
-	printf("4.ê²Œì„ ì¢…ë£Œ\n");
-	printf("ì›í•˜ì‹œëŠ” í•­ëª©ì„ ì„ íƒí•´ì£¼ì„¸ìš”.:");
-	scanf("%d", &select);
-
 	do {
+		int select;
+		printf("ÇÒ¸®°¥¸®\n\n");
+		printf("1.°ÔÀÓ ½ÃÀÛ\n");
+		printf("2.»ç¿ëÀÚ ÀÌ¸§ ¼öÁ¤\n");
+		printf("3.°ÔÀÓ ¹æ¹ı ¼³¸í\n");
+		printf("4.°ÔÀÓ Á¾·á\n");
+		printf("¿øÇÏ½Ã´Â Ç×¸ñÀ» ¼±ÅÃÇØÁÖ¼¼¿ä.:");
+		scanf_s("%d", &select);
+
 		if (select == 1)
 			GameStart();
 		else if (select == 2)
@@ -221,10 +218,10 @@ void main(void) {
 		else if (select == 3)
 			GameDescription();
 		else if (select == 4) {
-			printf("ê²Œì„ì„ ì¢…ë£Œí•©ë‹ˆë‹¤.\n");
+			printf("°ÔÀÓÀ» Á¾·áÇÕ´Ï´Ù.\n");
 			return 0;
 		}
 		else
-			printf("1ì—ì„œ 3ê¹Œì§€ì˜ ë²ˆí˜¸ë¥¼ ì„ íƒí•´ì£¼ì„¸ìš”.\n");
-	} while (0);
+			printf("1¿¡¼­ 3±îÁöÀÇ ¹øÈ£¸¦ ¼±ÅÃÇØÁÖ¼¼¿ä.\n");
+	} while (1);
 }
