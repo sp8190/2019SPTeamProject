@@ -7,8 +7,7 @@
 #define MAX_NAME_LENGTH 10   // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
 #define BUFSIZE 128
 
-char *user[4] = { "사용자1", "사용자2", "사용자3", "사용자4" }; // 이름은 모든 함수에서 참조하기 떄문에 전역으로 뺐습니다.
-
+char *user[4]; // 이름은 모든 함수에서 참조하기 떄문에 전역으로 뺐습니다.
 /* 필드에 놓여있는 카드배열들인 field 들을 얻은 사용자의 덱인 deck에 추가함  */
 void TakeCardsInField(int *deck, int *field) {
 	int i;
@@ -164,7 +163,7 @@ void ModifyName() {
 		do {
 			int i, myInputLen = 0;
 			modName = "\0";
-			modName = malloc(sizeof(char) * BUFSIZE); // +1은 맨 뒤의 NULL 고려한 것
+			modName = malloc(sizeof(char) * BUFSIZE); // +맨 뒤의 NULL 고려한 것
 			user[num - 1] = NULL; //배열 초기화
 			printf("사용자%d의 정보를 수정하겠습니다.\n", num);
 			printf("변경할 이름을 적어주십시오. : ");
@@ -184,7 +183,6 @@ void ModifyName() {
 			}
 		} while (true);
 		user[num-1] = modName;
-
 	} while (true);
 
 }
@@ -201,6 +199,14 @@ void GameStart() {
 
 /*  메인함수 ^^ */
 void main(void) {
+	//초기 이름 할당
+	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
+	for (int i = 0; i < 4; i++) {
+		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
+		strcpy_s(user[i], sizeof(char)*BUFSIZE, defaultUserName[i]);
+	}
+
+	//메인 실행플로우
 	do {
 		int select;
 		printf("할리갈리\n\n");
@@ -219,9 +225,14 @@ void main(void) {
 			GameDescription();
 		else if (select == 4) {
 			printf("게임을 종료합니다.\n");
-			return 0;
+			break;
 		}
 		else
 			printf("1에서 3까지의 번호를 선택해주세요.\n");
 	} while (1);
+
+	//메모리 정리
+	for (int i = 0; i < 4; i++) {
+		free(user[i]);
+	}
 }
