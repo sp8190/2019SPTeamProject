@@ -10,7 +10,7 @@
 #define PLAYER_MAX_CNT 4
 #define MAX_NAME_LENGTH 10   // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
 #define BUFSIZE 128
-#define MAX 128
+#define MAX 256
 
 char *user[4]; // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
 
@@ -259,7 +259,7 @@ void GameDescription() {
 
 	FILE* file = NULL;
 
-	if (fopen_s(&file, "Text.txt", 'rt') == 0) {
+	if (fopen_s(&file, "Description.txt", 'rt') == 0) {
 		printf("파일출력\n\n");
 
 		while (fgets(buffer, MAX, file) != NULL) {
