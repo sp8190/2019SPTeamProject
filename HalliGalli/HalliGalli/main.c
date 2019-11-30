@@ -10,6 +10,7 @@
 #define PLAYER_MAX_CNT 4
 #define MAX_NAME_LENGTH 10   // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
 #define BUFSIZE 128
+#define MAX 128
 
 char *user[4]; // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
 
@@ -253,7 +254,27 @@ void ModifyName() {
 
 /* 게임 방법 설명 출력(txt 파일 읽어옴) */
 void GameDescription() {
+	int lineCount = 0;
+	char buffer[MAX];
 
+	FILE* file = NULL;
+
+	if (fopen_s(&file, "Text.txt", 'rt') == 0) {
+		printf("파일출력\n\n");
+
+		while (fgets(buffer, MAX, file) != NULL) {
+			lineCount++;
+			printf("%d: %s", lineCount, buffer);
+		}
+		fclose(file);
+		printf("\n\n");
+	}
+	else {
+		printf("파일출력 실패\n\n");
+		fclose(file);
+	}
+
+	return 0;
 }
 
 /* halli galli 게임 시작하는함수 */
