@@ -2,13 +2,18 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <windows.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 #define DECK_MAX_CNT 56
 #define PLAYER_MAX_CNT 4
+#define MAX_NAME_LENGTH 10   // 10���� �������� �������, �ѱ��� �����Ͽ� 20�� ����
+#define BUFSIZE 128
 
+char *user[4]; // �̸��� ��� �Լ����� �����ϱ� ������ �������� �����ϴ�.
+/* �ʵ忡 �����ִ� ī��迭���� field ���� ���� ������� ���� deck�� �߰���  */
 
 //일단 걍 전역으로 두겠음 
 int playerDeck[PLAYER_MAX_CNT][DECK_MAX_CNT]; //플레이어 4명의 덱
@@ -81,44 +86,45 @@ int GetFruitType(int index) {
 	return (int)(index / 14);
 }
 /* 필드에 놓여있는 카드배열들인 field 들을 얻은 사용자의 덱인 deck에 추가함  */
+
 void TakeCardsInField(int *deck, int *field) {
 	int i;
-	int deckcount = 0, fieldcount = 0; // 어디서 0이 체크가 되는가
-	int decksize = sizeof(deck) / sizeof(deck[0]); // deck 배열의 크기
-	int fieldsize = sizeof(field) / sizeof(field[0]); // field 배열의 크기
+	int deckcount = 0, fieldcount = 0; // ��� 0�� üũ�� �Ǵ°�
+	int decksize = sizeof(deck) / sizeof(deck[0]); // deck �迭�� ũ��
+	int fieldsize = sizeof(field) / sizeof(field[0]); // field �迭�� ũ��
 
-	// deck배열 에서 몇번째부터 카드가 없는지 
+	// deck�迭 ���� ���°���� ī�尡 ������ 
 	/*for (i = 0; i < decksize; i++) {
 		if (deck[i] == 0) {
 			deckcount = i;
 			break;
 		}
 	}*/
-	deckcount = DeckCount(deck); // 위 구문을 함수로 대체했음
+	deckcount = DeckCount(deck); // �� ������ �Լ��� ��ü����
 
 
-	// field배열 에서 몇번째부터 카드가 없는지 
-	for (i = 0; i < fieldsize; i++) { //여기도 deckCount처럼 함수로 대체 가능함
+	// field�迭 ���� ���°���� ī�尡 ������ 
+	for (i = 0; i < fieldsize; i++) { //���⵵ deckCountó�� �Լ��� ��ü ������
 		if (field[i] == 0) {
 			fieldcount = i;
 			break;
 		}
 	}
 
-	// field배열안 변수들 deck배열에 넣기
+	// field�迭�� ������ deck�迭�� �ֱ�
 	for (i = 0; i < fieldsize; i++) {
 		deck[deckcount + i] = field[i];
 	}
 }
 
-/* int[4] 형태인 field에 같은 과일종류가 5개가 있는지 확인 */
+/* int[4] ������ field�� ���� ���������� 5���� �ִ��� Ȯ�� */
 bool IsFiveFruits(int *field) {
 	int fieldCpy[4] = { 0 };
 	int i;
 	for (i = 0; i < 4; i++) {
 		fieldCpy[GetFruitType(field[i])] += GetFruitCnt(field[i]);
 	}
-	//총합 5개인 과일 있는지 확인
+	//���� 5���� ���� �ִ��� Ȯ��
 	for (i = 0; i < 4; i++) {
 		if (fieldCpy[i] == 5)
 			return true;
@@ -126,21 +132,19 @@ bool IsFiveFruits(int *field) {
 	return false;
 }
 
-
-
-/* 인자로 들어온 deck의 최상위에 push 함 */
-int Push(int *deck, int cardNum) { //보고서에는 cardNum같은 변수 없음..
+/* ���ڷ� ���� deck�� �ֻ����� push �� */
+int Push(int *deck, int cardNum) { //���������� cardNum���� ���� ����..
 	int deckCount = DeckCount(deck);
-	if(deckCount != DECK_MAX_CNT) //덱 최대값이 아니라면
+	if (deckCount != DECK_MAX_CNT) //�� �ִ밪�� �ƴ϶��
 		deck[deckCount + 1] = cardNum;
 }
 
-/* 인자로 들어온 deck의 최상위값을 pop 함 */
+/* ���ڷ� ���� deck�� �ֻ������� pop �� */
 int Pop(int *deck) {
 	int i;
 	int deckCount = DeckCount(deck);
 	int ret = deck[0];
-	for (i = 0; i < deckCount - 1; i++) // 제일 앞에 있는 값을 pop하고 뒤에 있는 값들을 한칸씩 앞으로 댕겨줌
+	for (i = 0; i < deckCount - 1; i++) // ���� �տ� �ִ� ���� pop�ϰ� �ڿ� �ִ� ������ ��ĭ�� ������ �����
 	{
 		deck[i] = deck[i + 1];
 	}
@@ -171,11 +175,11 @@ void Shuffle()
     }
 }
 
+
 // void gotoxy(int x,int y) // 필요하면 주석 풀고 쓰면 됨
 // {
 //     printf("%c[%d;%df",0x1B,y,x);
 // }
-
 
 void DrawPlayerCard(int playerNum)
 {
@@ -203,17 +207,59 @@ void DrawPlayerCard(int playerNum)
     printf("\n\n\n");
 }
 
-/* 사용자의 이름 수정 */
+/* ������� �̸� ���� */
 void ModifyName() {
+	/* ������� ����Ʈ ���� */
+	int num;
+	do {
+		do {
+			printf("�����1: %s\n", user[0]);
+			printf("�����2: %s\n", user[1]);
+			printf("�����3: %s\n", user[2]);
+			printf("�����4: %s\n", user[3]);
+
+			printf("������ ������� ��ȣ�� �Է����ּ���(1~4)\n");
+			printf("�ش� �׸񿡼� ����÷��� 0�� �����ּ���.\n");
+			scanf_s("%d", &num);
+		} while (num < 0 || num > 4);
+
+		if (num == 0)
+			break;
+
+		char *modName;
+		do {
+			int i, myInputLen = 0;
+			modName = "\0";
+			modName = malloc(sizeof(char) * BUFSIZE); // +�� ���� NULL ������ ��
+			user[num - 1] = NULL; //�迭 �ʱ�ȭ
+			printf("�����%d�� ������ �����ϰڽ��ϴ�.\n", num);
+			printf("������ �̸��� �����ֽʽÿ�. : ");
+			scanf_s("%s", modName, sizeof(char)*BUFSIZE); //����ڰ� �Է��� ������ ����
+			myInputLen = strlen(modName);
+			for (i = 0; i < strlen(modName); i++) {
+				if (((int)modName[i]) <= 32 || ((int)modName[i]) >= 127) { // ��°��� �ƽ�Ű�ڵ� �ƴ� ����
+					i++;
+					myInputLen--;
+				}
+			}
+			if (myInputLen <= MAX_NAME_LENGTH) {
+				break;
+			}
+			else {
+				printf("������� �̸��� %d���ڰ� �ִ��Դϴ�. �ٽ��Է����ּ���.\n\n", MAX_NAME_LENGTH);
+			}
+		} while (true);
+		user[num-1] = modName;
+	} while (true);
 
 }
 
-/* 게임 방법 설명 출력(txt 파일 읽어옴) */
+/* ���� ��� ���� ���(txt ���� �о��) */
 void GameDescription() {
 
 }
 
-/* halli galli 게임 시작하는함수 */
+/* halli galli ���� �����ϴ��Լ� */
 void GameStart() {
     pid_t childPid = fork();
     int* childStat;
@@ -254,7 +300,42 @@ void GameStart() {
     }
 }
 
-/*  메인함수 ^^ */
-int main(void) {
-    GameStart();
+/*  �����Լ� ^^ */
+void main(void) {
+	//�ʱ� �̸� �Ҵ�
+	char *defaultUserName[4] = { "�����1", "�����2", "�����3", "�����4"};
+	for (int i = 0; i < 4; i++) {
+		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
+		strcpy_s(user[i], sizeof(char)*BUFSIZE, defaultUserName[i]);
+	}
+
+	//���� �����÷ο�
+	do {
+		int select;
+		printf("�Ҹ�����\n\n");
+		printf("1.���� ����\n");
+		printf("2.����� �̸� ����\n");
+		printf("3.���� ��� ����\n");
+		printf("4.���� ����\n");
+		printf("���Ͻô� �׸��� �������ּ���.:");
+		scanf_s("%d", &select);
+
+		if (select == 1)
+			GameStart();
+		else if (select == 2)
+			ModifyName();
+		else if (select == 3)
+			GameDescription();
+		else if (select == 4) {
+			printf("������ �����մϴ�.\n");
+			break;
+		}
+		else
+			printf("1���� 3������ ��ȣ�� �������ּ���.\n");
+	} while (1);
+
+	//�޸� ����
+	for (int i = 0; i < 4; i++) {
+		free(user[i]);
+	}
 }
