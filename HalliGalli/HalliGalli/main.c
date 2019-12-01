@@ -17,6 +17,9 @@ char *user[4]; // 10글자 제한으로 잡았으나, 한글을 고려하여 20�
 
 //일단 걍 전역으로 두겠음 
 int playerDeck[PLAYER_MAX_CNT][DECK_MAX_CNT]; //플레이어 4명의 덱
+int countcard[4] = { 0 }; // 플레이어들이 낸 맨 앞 카드
+int collectcard[56] = { 0 }; // 쌓이는 카드들
+int collectnum = 0; // 쌓이는 횟수
 
 
 /* 인자로 들어온 deck의 카드의 개수 반환 */
