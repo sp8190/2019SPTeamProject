@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <pthread.h>
+#include <termios.h>
 
 #define DECK_MAX_CNT 56
 #define PLAYER_MAX_CNT 4
