@@ -308,11 +308,210 @@ void GameStart() {
 
         //쓰레드 두개 돌려서 게임이 진행되는 부분과 입력을 받는 부분으로 나눈다
 
-    }
-    else{ // 부모 코드
-        wait(childStat); // 부모 프로세스는 자식이 종료될 때 까지 기다림
-        printf("부모의 종료");
-    }
+		pthread_t p_thread[2]; // pthread 2개 생성
+		int i;
+		int j;
+		int start = rand() % PLAYER_MAX_CNT;
+		int key; // 버튼 누른값
+		int count = 0; // 게임 끝나는 조건
+		
+		// 사용자 덱 처음에 보여줌 (확인용)
+		//for (i = 0; i < PLAYER_MAX_CNT; i++) {
+		//	printf("\n [%d]player deck :", i + 1);
+		//	for (j = 0; j < DECK_MAX_CNT; j++) {
+		//		printf("[%d]", playerDeck[i][j]);
+		//	}
+		//}
+
+		while (1) {
+
+			printf("\n%d player turn - ", start + 1);
+
+			for (i = 0; i < PLAYER_MAX_CNT; i++) {
+				if (playerDeck[i][0] == 0) {
+					count++;
+				}
+			}
+			//(확인용)
+			if (count == 20) {
+				count = 0;
+				break;
+			}
+
+			// 게임이 진행되는 부분
+			pthread_create(&p_thread[1], NULL, Gamescreen, (void *)&key);
+			pthread_create(&p_thread[0], NULL, InputGameKey, (void *)&start);
+
+			pthread_join(p_thread[1], NULL);
+			pthread_join(p_thread[0], (void **)&key);
+
+			count++; // 초기화(확인용)
+
+			start++; // next player~
+			if (key == 119 || key == 120 || key == 47 || key == 93) start--; // hit the ring!
+
+			if (start == 4) {
+				start = 0;
+			}
+		}
+
+	}
+	else { // 부모 코드
+		wait(childStat); // 부모 프로세스는 자식이 종료될 때 까지 기다림
+		printf("부모의 종료");
+	}
+}
+
+// 실시간으로 키 입력 받는 함수
+int getch(void)
+{
+	int ch;
+	struct termios buf;
+	struct termios save;
+
+	tcgetattr(0, &save);
+	buf = save;
+	buf.c_lflag &= ~(ICANON | ECHO);
+	buf.c_cc[VMIN] = 1;
+	buf.c_cc[VTIME] = 0;
+	tcsetattr(0, TCSAFLUSH, &buf);
+	ch = getchar();
+	tcsetattr(0, TCSAFLUSH, &save);
+	return ch;
+}
+
+void* Gamescreen(void *data)
+{
+	int open = *((int *)data); // 누가 카드를 냈나?
+	int printcard = 0;
+
+	
+	// 카드 넘겼을 때 화면 출력
+	switch (open) {
+	case 113: // 1player
+		printcard = Pop(playerDeck[0]);
+		printf("[[%d]]", printcard);
+		countcard[0] = printcard; // 1player 앞에 놓여진 카드
+		collectcard[collectnum] = printcard;
+		break;
+	case 122: // 2player
+		printcard = Pop(playerDeck[1]);
+		printf("[[%d]]", printcard);
+		countcard[1] = printcard; // 2player 앞에 놓여진 카드
+		collectcard[collectnum] = printcard;
+		break;
+	case 46: // 3player
+		printcard = Pop(playerDeck[2]);
+		printf("[[%d]]", printcard);
+		countcard[2] = printcard; // 3player 앞에 놓여진 카드
+		collectcard[collectnum] = printcard;
+		break;
+	case 91: // 4player
+		printcard = Pop(playerDeck[3]);
+		printf("[[%d]]", printcard);
+		countcard[3] = printcard; // 4player 앞에 놓여진 카드
+		collectcard[collectnum] = printcard;
+		break;
+	}
+
+	// 종을 눌렀을 때 화면 출력
+	switch (open) {
+	case 119: // 1player
+		// 알맞게 종을 눌렀을 경우
+		if (IsFiveFruits(countcard) == true) {
+			TakeCardsInField(playerDeck[0], collectcard);
+		}
+		// 종이 틀렸을 경우
+		if (IsFiveFruits(countcard) == false) {
+			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+		}
+		break;
+	case 120: // 2player
+		if (IsFiveFruits(countcard) == true) {
+			TakeCardsInField(playerDeck[0], collectcard);
+		}
+		if (IsFiveFruits(countcard) == false) {
+			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+		}
+		break;
+	case 47: // 3player
+		if (IsFiveFruits(countcard) == true) {
+			TakeCardsInField(playerDeck[0], collectcard);
+		}
+		if (IsFiveFruits(countcard) == false) {
+			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+		}
+		break;
+	case 93: // 4player
+		if (IsFiveFruits(countcard) == true) {
+			TakeCardsInField(playerDeck[0], collectcard);
+		}
+		if (IsFiveFruits(countcard) == false) {
+			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+		}
+		break;
+	}
+}
+
+void* InputGameKey(void *data)
+{
+	int ch = 0;
+	int count = *((int *)data); // 어떤 플레이어가 하는지
+
+	//1 player cardopen : 113 / ring : 119
+	//2 player cardopen : 122 / ring : 120
+	//3 player cardopen : 46 / ring : 47
+	//4 player cardopen : 91 / ring : 93
+	while (1) {
+		ch = getch();
+		//printf(" [%d this hit!!] ", ch); (확인용)
+
+		// 종 누르는 거
+		if (ch == 119) {
+			printf("[1player] ring");
+			return (void *)119;
+		}
+		else if (ch == 120) {
+			printf("[2player] ring");
+			return (void *)120;
+		}
+		else if (ch == 47) {
+			printf("[3player] ring");
+			return (void *)47;
+		}
+		else if (ch == 93) {
+			printf("[4player] ring");
+			return (void *)93;
+		}
+
+		// 카드 넘기는거
+		switch (count) {
+		case 0:
+			if (ch == 113) {
+				printf("[1player] open");
+				return (void *)113;
+			}
+			break;
+		case 1:
+			if (ch == 122) {
+				printf("[2player] open");
+				return (void *)122;
+			}
+			break;
+		case 2:
+			if (ch == 46) {
+				printf("[3player] open");
+				return (void *)46;
+			}
+			break;
+		case 3:
+			if (ch == 91) {
+				printf("[4player] open");
+				return (void *)91;
+			}
+			break;
+		}
+	}
 }
 
 /*  메인 함수 ^^ */
