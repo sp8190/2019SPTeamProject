@@ -23,6 +23,20 @@ int countcard[4] = { 0 }; // 플레이어들이 낸 맨 앞 카드
 int collectcard[56] = { 0 }; // 쌓이는 카드들
 int collectnum = 0; // 쌓이는 횟수
 
+// 함수 선언(C언어...)
+int DeckCount(int *deck);
+int GetFruitCnt(int index);
+int GetFruitType(int index);
+void TakeCardsInField(int *deck, int *field);
+bool IsFiveFruits(int *field);
+int Push(int *deck, int cardNum);
+int Pop(int *deck);
+void Shuffle();
+void DrawPlayerCard(int playerNum);
+void GameStart()
+int getch(void)
+void* Gamescreen(void *data);
+void* InputGameKey(void *data);
 
 /* 인자로 들어온 deck의 카드의 개수 반환 */
 int DeckCount(int *deck) {
