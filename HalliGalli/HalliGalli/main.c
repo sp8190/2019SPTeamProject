@@ -228,6 +228,8 @@ void DrawPlayerCard(int playerNum)
 /* 사용자의 이름 수정 */
 void ModifyName() {
 	/* 사용자의 디폴트 네임 */
+	/*
+	// 공사중..
 	int num;
 	do {
 		do {
@@ -269,7 +271,7 @@ void ModifyName() {
 		} while (true);
 		user[num-1] = modName;
 	} while (true);
-
+	*/
 }
 
 /* 게임 방법 설명 출력(txt 파일 읽어옴) */
@@ -567,10 +569,13 @@ void* InputGameKey(void *data)
 void main(void) {
 	//초기 이름 할당
 	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
+	/*
+	strcpy에 문제가 생겨서 테스트
 	for (int i = 0; i < 4; i++) {
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
 		strcpy_s(user[i], sizeof(char)*BUFSIZE, defaultUserName[i]);
 	}
+	*/
 
 
 	//메인 실행플로우
