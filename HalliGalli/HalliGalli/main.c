@@ -228,9 +228,9 @@ void DrawPlayerCard(int playerNum)
 /* 사용자의 이름 수정 */
 void ModifyName() {
 	/* 사용자의 디폴트 네임 */
-	/*
-	// 공사중..
 	int num;
+	char *modName;
+	int i, myInputLen = 0, myInputLenCpy=0;
 	do {
 		do {
 			printf("사용자1: %s\n", user[0]);
@@ -240,26 +240,25 @@ void ModifyName() {
 
 			printf("수정할 사용자의 번호를 입력해주세요(1~4)\n");
 			printf("해당 항목에서 벗어나시려면 0을 눌러주세요.\n");
-			// scanf_s("%d", &num);
+			scanf("%d", &num);
 		} while (num < 0 || num > 4);
 
 		if (num == 0)
 			break;
 
-		char *modName;
 		do {
-			int i, myInputLen = 0;
 			modName = "\0";
 			modName = malloc(sizeof(char) * BUFSIZE); // +1은 맨 뒤의 NULL 고려한 것
 			user[num - 1] = NULL; //배열 초기화
 			printf("사용자%d의 정보를 수정하겠습니다.\n", num);
 			printf("변경할 이름을 적어주십시오. : ");
-			// scanf_s("%s", modName, sizeof(char)*BUFSIZE); //사용자가 입력한 정보로 변경
-			// myInputLen = strlen(modName);
-			for (i = 0; i < 0; i++) {
+			scanf("%s", modName); //사용자가 입력한 정보로 변경
+			myInputLen = strlen(modName);
+			myInputLenCpy = myInputLen;
+			for (i = 0; i < myInputLenCpy; i++) {
 				if (((int)modName[i]) <= 32 || ((int)modName[i]) >= 127) { // 출력가능 아스키코드 아닌 문자
-					i++;
-					myInputLen--;
+					i+=2;
+					myInputLen-=2;
 				}
 			}
 			if (myInputLen <= MAX_NAME_LENGTH) {
@@ -271,7 +270,6 @@ void ModifyName() {
 		} while (true);
 		user[num-1] = modName;
 	} while (true);
-	*/
 }
 
 /* 게임 방법 설명 출력(txt 파일 읽어옴) */
@@ -566,13 +564,11 @@ void* InputGameKey(void *data)
 void main(void) {
 	//초기 이름 할당
 	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
-	/*
-	strcpy에 문제가 생겨서 테스트
-	for (int i = 0; i < 4; i++) {
+	int i;
+	for (i = 0; i < 4; i++) {
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
-		// strcpy_s(user[i], sizeof(char)*BUFSIZE, defaultUserName[i]);
+		strcpy(user[i], defaultUserName[i]);
 	}
-	*/
 
 
 	//메인 실행플로우
