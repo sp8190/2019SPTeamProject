@@ -267,46 +267,61 @@ void ExitCleaner()
 void ModifyName() {
 	/* 사용자의 디폴트 네임 */
 	int num;
-	char *modName;
-	int i, myInputLen = 0, myInputLenCpy=0;
+	char numArray[2], tempArray[2];
+	char *modName2;
+	int i, myInputLen = 0, myInputLenCpy = 0;
 	do {
 		do {
-			printf("사용자1: %s\n", user[0]);
-			printf("사용자2: %s\n", user[1]);
-			printf("사용자3: %s\n", user[2]);
-			printf("사용자4: %s\n", user[3]);
+			write(1, "사용자1: ", strlen("사용자1: "));
+			write(1, user[0], strlen(user[0]));
+			write(1, "\n사용자2: ", strlen("\n사용자1: "));
+			write(1, user[1], strlen(user[1]));
+			write(1, "\n사용자3: ", strlen("\n사용자1: "));
+			write(1, user[2], strlen(user[2]));
+			write(1, "\n사용자4: ", strlen("\n사용자1: "));
+			write(1, user[3], strlen(user[3]));
+			write(1, "\n", strlen("\n"));
 
-			printf("수정할 사용자의 번호를 입력해주세요(1~4)\n");
-			printf("해당 항목에서 벗어나시려면 0을 눌러주세요.\n");
-			scanf("%d", &num);
-		} while (num < 0 || num > 4);
+			write(1, "수정할 사용자의 번호를 입력해주세요(1~4)\n", strlen("수정할 사용자의 번호를 입력해주세요(1~4)\n"));
+			write(1, "해당 항목에서 벗어나시려면 0을 눌러주세요.\n", strlen("해당 항목에서 벗어나시려면 0을 눌러주세요.\n"));
+			read(0, numArray, sizeof(numArray));
+		} while (numArray[0] < '0' || numArray[0] > '4');
 
+		num = numArray[0] - '0'; // numArray to num
+		numArray[0] = num + '0';
+		numArray[1] = 0;
 		if (num == 0)
 			break;
 
 		do {
-			modName = "\0";
-			modName = malloc(sizeof(char) * BUFSIZE); // +1은 맨 뒤의 NULL 고려한 것
+			modName2 = "\0";
+			modName2 = (char*)malloc(sizeof(char)*BUFSIZE);
 			user[num - 1] = NULL; //배열 초기화
-			printf("사용자%d의 정보를 수정하겠습니다.\n", num);
-			printf("변경할 이름을 적어주십시오. : ");
-			scanf("%s", modName); //사용자가 입력한 정보로 변경
-			myInputLen = strlen(modName);
-			myInputLenCpy = myInputLen;
-			for (i = 0; i < myInputLenCpy; i++) {
-				if (((int)modName[i]) <= 32 || ((int)modName[i]) >= 127) { // 출력가능 아스키코드 아닌 문자
-					i+=2;
-					myInputLen-=2;
+			write(1, "사용자", strlen("사용자"));
+			write(1, numArray, sizeof(numArray[0]));
+			write(1, "의 정보를 수정하겠습니다.\n", strlen("의 정보를 수정하겠습니다.\n"));
+			write(1, "변경할 이름을 적어주십시오. : ", strlen("변경할 이름을 적어주십시오. : "));
+			read(0, modName2, BUFSIZE);
+			myInputLen = strlen(modName2); //영문자 한글 포함한 진짜 글자를 저장하는 변수
+			myInputLenCpy = myInputLen; // 진짜 글자수 계산전 for문을 위한 copy본 만들기
+			modName2[myInputLen - 1] = 0; // \n제거
+			for (i = 0; i < myInputLenCpy - 1; i++) {
+				if (((int)modName2[i]) <= 32 || ((int)modName2[i]) >= 127) { // 출력가능 아스키코드 아닌 문자
+					i += 2;
+					myInputLen -= 2;
 				}
 			}
+			myInputLen -= 1;
 			if (myInputLen <= MAX_NAME_LENGTH) {
 				break;
 			}
 			else {
-				printf("사용자의 이름은 %d글자가 최대입니다. 다시입력해주세요.\n\n", MAX_NAME_LENGTH);
+				tempArray[0] = MAX_NAME_LENGTH + '0';
+				tempArray[1] = 0;
+				write(1, "사용자의 이름은 10글자가 최대입니다. 다시입력해주세요.\n\n", strlen("사용자의 이름은 10글자가 최대입니다. 다시입력해주세요.\n\n"));
 			}
 		} while (true);
-		user[num-1] = modName;
+		user[num - 1] = modName2;
 	} while (true);
 }
 
