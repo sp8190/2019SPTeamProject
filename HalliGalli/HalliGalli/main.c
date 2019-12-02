@@ -134,7 +134,10 @@ void TakeCardsInField(int *deck, int *field) {
 	// field배열안 변수들 deck배열에 넣기
 	for (i = 0; i < fieldsize; i++) {
 		deck[deckcount + i] = field[i];
+		field[i] = 0; // field 비우는 구문 없어서 추가함
 	}
+	for (i = 0; i < 4; i++) 
+		countcard[i] = 0; // 얘도 마찬가지로 비우는 구문 추가
 }
 
 /* int[4] 형태인 field에 같은 과일종류가 5개가 있는지 확인 */
@@ -255,6 +258,11 @@ bool CheckIfGameOver(){
 	return false;
 }
 
+// 종료할때 실행해서 여러가지 정리해주는 함수
+void ExitCleaner()
+{
+	
+}
 /* 사용자의 이름 수정 */
 void ModifyName() {
 	/* 사용자의 디폴트 네임 */
@@ -398,13 +406,13 @@ void GameStart() {
 			start++; // next player~
 			if (key == 119 || key == 120 || key == 47 || key == 93) start--; // hit the ring!
 
+			if(start == PLAYER_MAX_CNT)
+				start = 0;
 			while(playerGameOvered[start] == true){ // 게임 오버인 사람은 빼놓고 턴이 돌아가게
 				start++;
 				if(start == PLAYER_MAX_CNT)
 					start = 0;
 			}
-			if(start == PLAYER_MAX_CNT)
-				start = 0;
 		}
 
 	}
@@ -483,12 +491,12 @@ void* Gamescreen(void *data)
 				printf("정답! 플레이어 0 득점\n");
 			}
 			// 종이 틀렸을 경우
-			if (IsFiveFruits(countcard) == false) {
+			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 0 감점\n");
 				for(i = 0; i < PLAYER_MAX_CNT; i++){
-					printcard = Pop(playerDeck[0]);
-					if(printcard != -1){ 
+					if(playerDeck[0][0] != -1){ 
 						if(i != 0 && playerGameOvered[i] == false){ // 본인의 번호가 아니고, 게임오버 되지 않은 플레이어한테
+							printcard = Pop(playerDeck[0]);
 							Push(playerDeck[i], printcard);	// 내 카드 팝해서 추가시켜줌
 						}
 					} else{ // 덱이 전부 비었다면
@@ -506,12 +514,12 @@ void* Gamescreen(void *data)
 				TakeCardsInField(playerDeck[1], collectcard);
 				printf("정답! 플레이어 1 득점\n");
 			}
-			if (IsFiveFruits(countcard) == false) {
+			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 1 감점\n");
 				for(i = 0; i < PLAYER_MAX_CNT; i++){
-					printcard = Pop(playerDeck[1]);
-					if(printcard != -1){ 
+					if(playerDeck[1][0] != -1){ 
 						if(i != 1  && playerGameOvered[i] == false){
+							printcard = Pop(playerDeck[1]);
 							Push(playerDeck[i], printcard);		
 						}
 					} else{
@@ -529,16 +537,16 @@ void* Gamescreen(void *data)
 				TakeCardsInField(playerDeck[2], collectcard);
 				printf("정답! 플레이어 2 득점\n");
 			}
-			if (IsFiveFruits(countcard) == false) {
+			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 2 감점\n");
 
 				for(i = 0; i < PLAYER_MAX_CNT; i++){
-					printcard = Pop(playerDeck[2]);
-					if(printcard != -1){ 
+					if(playerDeck[2][0] != -1){ 
 						if(i != 2  && playerGameOvered[i] == false){
+							printcard = Pop(playerDeck[2]);
 							Push(playerDeck[i], printcard);		
 						}
-					} else{
+					}else {
 						if(CheckIfGameOver()){
 							exit(0);
 						}
@@ -553,13 +561,13 @@ void* Gamescreen(void *data)
 				TakeCardsInField(playerDeck[3], collectcard);
 				printf("정답! 플레이어 3 득점\n");
 			}
-			if (IsFiveFruits(countcard) == false) {
+			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 3 감점\n");
 
 				for(i = 0; i < PLAYER_MAX_CNT; i++){
-					printcard = Pop(playerDeck[3]);
-					if(printcard != -1){ 
+					if(playerDeck[3][0] != -1){ 
 						if(i != 3  && playerGameOvered[i] == false){
+							printcard = Pop(playerDeck[3]);
 							Push(playerDeck[i], printcard);		
 						}
 					} else{
@@ -575,7 +583,7 @@ void* Gamescreen(void *data)
 
 	for (i = 0; i < PLAYER_MAX_CNT; i++) {
 		printf("\n [%d]player deck의 상위 세 장 :", i + 1);
-		for (j = 0; j < 3; j++) {
+		for (j = 0; j < 30; j++) {
 			printf("[%d]", playerDeck[i][j]);
 		}
 	}
