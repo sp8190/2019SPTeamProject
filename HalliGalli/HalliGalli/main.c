@@ -295,56 +295,56 @@ void GameDescription() {
 
 /* halli galli 게임 시작하는함수 */
 void GameStart() {
-    pid_t childPid = fork();
-    int* childStat;
-    if(childPid == -1) { // fork error
-        perror("failed to fork");
-    }
-    else if(childPid == 0){ // 자식 코드. 게임이 실행되는 프로세스
-        //게임 화면 출력하고
-        printf("--------------------------------------------------------------------------------------------------------------\n");
-        printf("\n");
-        printf("\n");
-        printf("\n");
+	pid_t childPid = fork();
+	int* childStat;
+	if (childPid == -1) { // fork error
+		perror("failed to fork");
+	}
+	else if (childPid == 0) { // 자식 코드. 게임이 실행되는 프로세스
+	   //게임 화면 출력하고
+		printf("--------------------------------------------------------------------------------------------------------------\n");
+		printf("\n");
+		printf("\n");
+		printf("\n");
 
-        Shuffle(); // 패 섞어서 4명에게 나누어줌
+		Shuffle(); // 패 섞어서 4명에게 나누어줌
 
-        /* 패가 어떻게 섞였는지 확인하고 싶을 때 이 for문 주석 풀기 
-        for(int i = 0; i < 4; i++){ 
-            printf("플레이어 %d의 패 ",i);
-            for(int j=0; j<DECK_MAX_CNT/PLAYER_MAX_CNT; j++)
-                printf("%d  ", playerDeck[i][j]);
-            printf("\n");
-        } */
+		/* 패가 어떻게 섞였는지 확인하고 싶을 때 이 for문 주석 풀기
+		for(int i = 0; i < 4; i++){
+		   printf("플레이어 %d의 패 ",i);
+		   for(int j=0; j<DECK_MAX_CNT/PLAYER_MAX_CNT; j++)
+			 printf("%d  ", playerDeck[i][j]);
+		   printf("\n");
+		} */
 
-        for(int i = 0; i < PLAYER_MAX_CNT; i++) // 각 플레이어의 카드패 공개
-            DrawPlayerCard(i);
+		for (int i = 0; i < PLAYER_MAX_CNT; i++) // 각 플레이어의 카드패 공개
+			DrawPlayerCard(i);
 
-        printf("\n");
-        printf("\n");
-        printf("\n");
-        printf("--------------------------------------------------------------------------------------------------------------\n");
+		printf("\n");
+		printf("\n");
+		printf("\n");
+		printf("--------------------------------------------------------------------------------------------------------------\n");
 
-        //쓰레드 두개 돌려서 게임이 진행되는 부분과 입력을 받는 부분으로 나눈다
+		//쓰레드 두개 돌려서 게임이 진행되는 부분과 입력을 받는 부분으로 나눈다
 
 		pthread_t p_thread[2]; // pthread 2개 생성
 		int i;
 		int j;
 		int start = rand() % PLAYER_MAX_CNT;
-		int key; // 버튼 누른값
+		int key = 0; // 버튼 누른값
 		int count = 0; // 게임 끝나는 조건
-		
+
 		// 사용자 덱 처음에 보여줌 (확인용)
 		//for (i = 0; i < PLAYER_MAX_CNT; i++) {
-		//	printf("\n [%d]player deck :", i + 1);
-		//	for (j = 0; j < DECK_MAX_CNT; j++) {
-		//		printf("[%d]", playerDeck[i][j]);
-		//	}
+		//   printf("\n [%d]player deck :", i + 1);
+		//   for (j = 0; j < DECK_MAX_CNT; j++) {
+		//      printf("[%d]", playerDeck[i][j]);
+		//   }
 		//}
 
-		while (1) {
+		printf("%d player turn", start + 1);
 
-			printf("\n%d player turn - ", start + 1);
+		while (1) {
 
 			for (i = 0; i < PLAYER_MAX_CNT; i++) {
 				if (playerDeck[i][0] == 0) {
@@ -372,6 +372,8 @@ void GameStart() {
 			if (start == 4) {
 				start = 0;
 			}
+
+
 		}
 
 	}
@@ -404,30 +406,30 @@ void* Gamescreen(void *data)
 	int open = *((int *)data); // 누가 카드를 냈나?
 	int printcard = 0;
 
-	
+
 	// 카드 넘겼을 때 화면 출력
 	switch (open) {
 	case 113: // 1player
+		DrawPlayerCard(0);
 		printcard = Pop(playerDeck[0]);
-		printf("[[%d]]", printcard);
 		countcard[0] = printcard; // 1player 앞에 놓여진 카드
 		collectcard[collectnum] = printcard;
 		break;
 	case 122: // 2player
+		DrawPlayerCard(1);
 		printcard = Pop(playerDeck[1]);
-		printf("[[%d]]", printcard);
 		countcard[1] = printcard; // 2player 앞에 놓여진 카드
 		collectcard[collectnum] = printcard;
 		break;
 	case 46: // 3player
+		DrawPlayerCard(2);
 		printcard = Pop(playerDeck[2]);
-		printf("[[%d]]", printcard);
 		countcard[2] = printcard; // 3player 앞에 놓여진 카드
 		collectcard[collectnum] = printcard;
 		break;
 	case 91: // 4player
+		DrawPlayerCard(3);
 		printcard = Pop(playerDeck[3]);
-		printf("[[%d]]", printcard);
 		countcard[3] = printcard; // 4player 앞에 놓여진 카드
 		collectcard[collectnum] = printcard;
 		break;
@@ -436,37 +438,65 @@ void* Gamescreen(void *data)
 	// 종을 눌렀을 때 화면 출력
 	switch (open) {
 	case 119: // 1player
-		// 알맞게 종을 눌렀을 경우
+	   // 알맞게 종을 눌렀을 경우
 		if (IsFiveFruits(countcard) == true) {
 			TakeCardsInField(playerDeck[0], collectcard);
 		}
 		// 종이 틀렸을 경우
 		if (IsFiveFruits(countcard) == false) {
-			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+			printcard = Pop(playerDeck[0]);
+			Push(playerDeck[1], printcard);
+
+			printcard = Pop(playerDeck[0]);
+			Push(playerDeck[2], printcard);
+
+			printcard = Pop(playerDeck[0]);
+			Push(playerDeck[3], printcard);
 		}
 		break;
 	case 120: // 2player
 		if (IsFiveFruits(countcard) == true) {
-			TakeCardsInField(playerDeck[0], collectcard);
+			TakeCardsInField(playerDeck[1], collectcard);
 		}
 		if (IsFiveFruits(countcard) == false) {
-			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+			printcard = Pop(playerDeck[1]);
+			Push(playerDeck[0], printcard);
+
+			printcard = Pop(playerDeck[1]);
+			Push(playerDeck[2], printcard);
+
+			printcard = Pop(playerDeck[1]);
+			Push(playerDeck[3], printcard);
 		}
 		break;
 	case 47: // 3player
 		if (IsFiveFruits(countcard) == true) {
-			TakeCardsInField(playerDeck[0], collectcard);
+			TakeCardsInField(playerDeck[2], collectcard);
 		}
 		if (IsFiveFruits(countcard) == false) {
-			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+			printcard = Pop(playerDeck[2]);
+			Push(playerDeck[0], printcard);
+
+			printcard = Pop(playerDeck[2]);
+			Push(playerDeck[1], printcard);
+
+			printcard = Pop(playerDeck[2]);
+			Push(playerDeck[3], printcard);
 		}
 		break;
 	case 93: // 4player
 		if (IsFiveFruits(countcard) == true) {
-			TakeCardsInField(playerDeck[0], collectcard);
+			TakeCardsInField(playerDeck[3], collectcard);
 		}
 		if (IsFiveFruits(countcard) == false) {
-			//Push(sample, sample[0]); // 여기서는 샘플이랑 샘플[0]이 각자 다른 걸로
+			printcard = Pop(playerDeck[3]);
+			Push(playerDeck[0], printcard);
+
+			printcard = Pop(playerDeck[3]);
+			Push(playerDeck[1], printcard);
+
+			printcard = Pop(playerDeck[3]);
+			Push(playerDeck[2], printcard);
 		}
 		break;
 	}
@@ -487,19 +517,19 @@ void* InputGameKey(void *data)
 
 		// 종 누르는 거
 		if (ch == 119) {
-			printf("[1player] ring");
+			printf("[1player] ring ");
 			return (void *)119;
 		}
 		else if (ch == 120) {
-			printf("[2player] ring");
+			printf("[2player] ring ");
 			return (void *)120;
 		}
 		else if (ch == 47) {
-			printf("[3player] ring");
+			printf("[3player] ring ");
 			return (void *)47;
 		}
 		else if (ch == 93) {
-			printf("[4player] ring");
+			printf("[4player] ring ");
 			return (void *)93;
 		}
 
@@ -507,25 +537,25 @@ void* InputGameKey(void *data)
 		switch (count) {
 		case 0:
 			if (ch == 113) {
-				printf("[1player] open");
+				printf("[1player] open ");
 				return (void *)113;
 			}
 			break;
 		case 1:
 			if (ch == 122) {
-				printf("[2player] open");
+				printf("[2player] open ");
 				return (void *)122;
 			}
 			break;
 		case 2:
 			if (ch == 46) {
-				printf("[3player] open");
+				printf("[3player] open ");
 				return (void *)46;
 			}
 			break;
 		case 3:
 			if (ch == 91) {
-				printf("[4player] open");
+				printf("[4player] open ");
 				return (void *)91;
 			}
 			break;
