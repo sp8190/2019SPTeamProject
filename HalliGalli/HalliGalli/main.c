@@ -162,7 +162,7 @@ int Pop(int *deck) {
 	int i;
 	int deckCount = DeckCount(deck);
 	int ret = deck[0];
-	for (i = 0; i < deckCount - 1; i++) // 제일 앞에 있는 값을 pop하고 뒤에 있는 값들을 한칸씩 앞으로 댕겨줌
+	for (i = 0; i < deckCount; i++) // 제일 앞에 있는 값을 pop하고 뒤에 있는 값들을 한칸씩 앞으로 댕겨줌
 	{
 		deck[i] = deck[i + 1];
 	}
@@ -199,6 +199,7 @@ void Shuffle()
 //     printf("%c[%d;%df",0x1B,y,x);
 // }
 
+/* 인자로 들어온 플레이어 번호에 해당하는 플레이어의 덱에서 제일 윗장의 카드를 보여줌 */
 void DrawPlayerCard(int playerNum)
 {
     printf("플레이어 %d\n",playerNum+1);
@@ -319,8 +320,8 @@ void GameStart() {
 		//    printf("\n");
 		// } 
 
-		for (int i = 0; i < PLAYER_MAX_CNT; i++) // 각 플레이어의 카드패 공개
-			DrawPlayerCard(i);
+		// for (int i = 0; i < PLAYER_MAX_CNT; i++) // 각 플레이어의 카드패 공개
+		// 	DrawPlayerCard(i);
 
 		printf("\n");
 		printf("\n");
@@ -337,12 +338,12 @@ void GameStart() {
 		int count = 0; // 게임 끝나는 조건
 
 		// 사용자 덱 처음에 보여줌 (확인용)
-		//for (i = 0; i < PLAYER_MAX_CNT; i++) {
+		// for (i = 0; i < PLAYER_MAX_CNT; i++) {
 		//   printf("\n [%d]player deck :", i + 1);
 		//   for (j = 0; j < DECK_MAX_CNT; j++) {
 		//      printf("[%d]", playerDeck[i][j]);
 		//   }
-		//}
+		// }
 
 		printf("%d player turn", start + 1);
 
