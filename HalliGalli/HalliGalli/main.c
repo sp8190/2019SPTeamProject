@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <pthread.h>
 #include <termios.h>
+#include <fcntl.h>
 
 #define DECK_MAX_CNT 56
 #define PLAYER_MAX_CNT 4
@@ -310,7 +312,7 @@ void GameDescription() {
 
 	if (fp < 0) {//에러 메시지 호출
 		perror("파일 에러입니다.");
-		return 0;
+		return;
 	}
 
 	readn = read(fp, buffer, MAX - 1);//fp의 내용을 buffer에 MAX-1만큼 읽는다.
