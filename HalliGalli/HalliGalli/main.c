@@ -22,6 +22,7 @@ int playerDeck[PLAYER_MAX_CNT][DECK_MAX_CNT]; //플레이어 4명의 덱
 int countcard[4] = { 0 }; // 플레이어들이 낸 맨 앞 카드
 int collectcard[56] = { 0 }; // 쌓이는 카드들
 int collectnum = 0; // 쌓이는 횟수
+bool playerGameOvered[PLAYER_MAX_CNT] = {false, false, false, false}; //플레이어 4명이 게임오버인지 아닌지
 
 // 함수 선언(C언어...)
 int DeckCount(int *deck);
@@ -45,7 +46,7 @@ int DeckCount(int *deck) {
 
 	for (i = 0; i < DECK_MAX_CNT; i++) {
 		// printf("deck[i] : %d\n",deck[i]);
-		if (deck[i] == 0) {
+		if (deck[i] == -1) { //비어있는 경우
 			deckCount = i;
 			break;
 		}
@@ -154,7 +155,7 @@ bool IsFiveFruits(int *field) {
 int Push(int *deck, int cardNum) { //보고서에는 cardNum같은 변수 없음..
 	int deckCount = DeckCount(deck);
 	if (deckCount != DECK_MAX_CNT) //덱 최대값이 아니라면
-		deck[deckCount + 1] = cardNum;
+		deck[deckCount] = cardNum;
 }
 
 /* 인자로 들어온 deck의 최상위값을 pop 함 */
@@ -173,23 +174,28 @@ int Pop(int *deck) {
 /* 게임 시작 시 덱을 섞어서 플레이어들에게 나누어주는 함수 */
 void Shuffle()
 {
+	int i, j, k;
+	
     srand((unsigned)time(NULL));
     int deck[DECK_MAX_CNT];
-    for(int i = 0; i < DECK_MAX_CNT; i++) // 덱을 만들어줌 
+    for(i = 0; i < DECK_MAX_CNT; i++) // 덱을 만들어줌 
         deck[i] =  i;
 
-    for(int i = 0; i < DECK_MAX_CNT; i++){ // 덱을 섞어줌
-        int j = rand() % DECK_MAX_CNT;
+    for(i = 0; i < DECK_MAX_CNT; i++){ // 덱을 섞어줌
+        j = rand() % DECK_MAX_CNT;
         int tmp = 0;
         tmp = deck[i];
         deck[i] = deck[j];
         deck[j] = tmp;
     }
 
-    for(int i = 0; i < PLAYER_MAX_CNT; i++){ // 플레이어들에게 나눠줌
-        for(int j = 0; j < DECK_MAX_CNT/PLAYER_MAX_CNT; j++){
+    for(i = 0; i < PLAYER_MAX_CNT; i++){ // 플레이어들에게 나눠줌
+        for(j = 0; j < DECK_MAX_CNT/PLAYER_MAX_CNT; j++){
             playerDeck[i][j] = deck[DECK_MAX_CNT/PLAYER_MAX_CNT * i + j];
         }
+		for(k = DECK_MAX_CNT/PLAYER_MAX_CNT; k < DECK_MAX_CNT; k++){ // 비어있는 경우는 -1로 초기화
+			playerDeck[i][k] = -1;
+		}
     }
 }
 
@@ -224,6 +230,28 @@ void DrawPlayerCard(int playerNum)
         printf("%s",fruitType);
     }
     printf("\n\n\n");
+}
+
+// 한 사용자라도 카드가 0장인지 체크해서 게임이 끝났는지 확인
+bool CheckIfGameOver(){
+	bool allGameOver = false;
+	int gameOveredPlayers = 0; // 게임 오버된 플레이어의 수
+	int i;
+	for(i = 0; i < PLAYER_MAX_CNT; i++){		
+		if(playerDeck[i][0] == -1){ // 맨 윗장이 비어있다면
+			playerGameOvered[i] = true;
+		}
+	}	
+	for(i = 0; i < PLAYER_MAX_CNT; i++){		
+		if(playerGameOvered[i] == true){ 
+			gameOveredPlayers ++;
+		}
+		if(gameOveredPlayers == PLAYER_MAX_CNT - 1){
+			printf("게임 종료!\n");
+			exit(0);
+		}
+	}
+	return false;
 }
 
 /* 사용자의 이름 수정 */
@@ -296,6 +324,7 @@ void GameDescription() {
 	// return 0;
 }
 
+
 /* halli galli 게임 시작하는함수 */
 void GameStart() {
 	pid_t childPid = fork();
@@ -355,7 +384,7 @@ void GameStart() {
 				}
 			}
 			//(확인용)
-			if (count == 20) {
+			if (count == 100) {
 				count = 0;
 				break;
 			}
@@ -372,11 +401,13 @@ void GameStart() {
 			start++; // next player~
 			if (key == 119 || key == 120 || key == 47 || key == 93) start--; // hit the ring!
 
-			if (start == 4) {
-				start = 0;
+			while(playerGameOvered[start] == true){ // 게임 오버인 사람은 빼놓고 턴이 돌아가게
+				start++;
+				if(start == PLAYER_MAX_CNT)
+					start = 0;
 			}
-
-
+			if(start == PLAYER_MAX_CNT)
+				start = 0;
 		}
 
 	}
@@ -408,99 +439,153 @@ void* Gamescreen(void *data)
 {
 	int open = *((int *)data); // 누가 카드를 냈나?
 	int printcard = 0;
+	int i,j;
 
 	// 카드 넘겼을 때 화면 출력
 	switch (open) {
 	case 113: // 1player
-		DrawPlayerCard(0);
-		printcard = Pop(playerDeck[0]);
-		countcard[0] = printcard; // 1player 앞에 놓여진 카드
-		collectcard[collectnum] = printcard;
+		if(playerGameOvered[0] == false){
+			DrawPlayerCard(0);
+			printcard = Pop(playerDeck[0]);
+			countcard[0] = printcard; // 1player 앞에 놓여진 카드
+			collectcard[collectnum] = printcard;
+		}
 		break;
 	case 122: // 2player
-		DrawPlayerCard(1);
-		printcard = Pop(playerDeck[1]);
-		countcard[1] = printcard; // 2player 앞에 놓여진 카드
-		collectcard[collectnum] = printcard;
+		if(playerGameOvered[1] == false){
+			DrawPlayerCard(1);
+			printcard = Pop(playerDeck[1]);
+			countcard[1] = printcard; // 2player 앞에 놓여진 카드
+			collectcard[collectnum] = printcard;
+		}
 		break;
 	case 46: // 3player
-		DrawPlayerCard(2);
-		printcard = Pop(playerDeck[2]);
-		countcard[2] = printcard; // 3player 앞에 놓여진 카드
-		collectcard[collectnum] = printcard;
+		if(playerGameOvered[2] == false){
+			DrawPlayerCard(2);
+			printcard = Pop(playerDeck[2]);
+			countcard[2] = printcard; // 3player 앞에 놓여진 카드
+			collectcard[collectnum] = printcard;
+		}
 		break;
 	case 91: // 4player
-		DrawPlayerCard(3);
-		printcard = Pop(playerDeck[3]);
-		countcard[3] = printcard; // 4player 앞에 놓여진 카드
-		collectcard[collectnum] = printcard;
+		if(playerGameOvered[3] == false){
+			DrawPlayerCard(3);
+			printcard = Pop(playerDeck[3]);
+			countcard[3] = printcard; // 4player 앞에 놓여진 카드
+			collectcard[collectnum] = printcard;
+		}
 		break;
 	}
 
 	// 종을 눌렀을 때 화면 출력
 	switch (open) {
 	case 119: // 1player
-	   // 알맞게 종을 눌렀을 경우
-		if (IsFiveFruits(countcard) == true) {
-			TakeCardsInField(playerDeck[0], collectcard);
-		}
-		// 종이 틀렸을 경우
-		if (IsFiveFruits(countcard) == false) {
-			printcard = Pop(playerDeck[0]);
-			Push(playerDeck[1], printcard);
-
-			printcard = Pop(playerDeck[0]);
-			Push(playerDeck[2], printcard);
-
-			printcard = Pop(playerDeck[0]);
-			Push(playerDeck[3], printcard);
+	   	if(playerGameOvered[0] == false){
+			if (IsFiveFruits(countcard) == true) {	   // 알맞게 종을 눌렀을 경우
+				TakeCardsInField(playerDeck[0], collectcard);
+				printf("정답! 플레이어 0 득점\n");
+			}
+			// 종이 틀렸을 경우
+			if (IsFiveFruits(countcard) == false) {
+				printf("오답! 플레이어 0 감점\n");
+				for(i = 0; i < PLAYER_MAX_CNT; i++){
+					printcard = Pop(playerDeck[0]);
+					if(printcard != -1){ 
+						if(i != 0 && playerGameOvered[i] == false){ // 본인의 번호가 아니고, 게임오버 되지 않은 플레이어한테
+							Push(playerDeck[i], printcard);	// 내 카드 팝해서 추가시켜줌
+						}
+					} else{ // 덱이 전부 비었다면
+						if(CheckIfGameOver()){ // 이 플레이어의 패배를 기록하고, 모든 게임이 끝났는지 확인한다.
+							exit(0);
+						}
+					}
+				}
+			}
 		}
 		break;
 	case 120: // 2player
-		if (IsFiveFruits(countcard) == true) {
-			TakeCardsInField(playerDeck[1], collectcard);
-		}
-		if (IsFiveFruits(countcard) == false) {
-			printcard = Pop(playerDeck[1]);
-			Push(playerDeck[0], printcard);
-
-			printcard = Pop(playerDeck[1]);
-			Push(playerDeck[2], printcard);
-
-			printcard = Pop(playerDeck[1]);
-			Push(playerDeck[3], printcard);
+	   	if(playerGameOvered[1] == false){
+			if (IsFiveFruits(countcard) == true) {
+				TakeCardsInField(playerDeck[1], collectcard);
+				printf("정답! 플레이어 1 득점\n");
+			}
+			if (IsFiveFruits(countcard) == false) {
+				printf("오답! 플레이어 1 감점\n");
+				for(i = 0; i < PLAYER_MAX_CNT; i++){
+					printcard = Pop(playerDeck[1]);
+					if(printcard != -1){ 
+						if(i != 1  && playerGameOvered[i] == false){
+							Push(playerDeck[i], printcard);		
+						}
+					} else{
+						if(CheckIfGameOver()){
+							exit(0);
+						}
+					}
+				}
+			}
 		}
 		break;
 	case 47: // 3player
-		if (IsFiveFruits(countcard) == true) {
-			TakeCardsInField(playerDeck[2], collectcard);
-		}
-		if (IsFiveFruits(countcard) == false) {
-			printcard = Pop(playerDeck[2]);
-			Push(playerDeck[0], printcard);
+	   	if(playerGameOvered[2] == false){
+			if (IsFiveFruits(countcard) == true) {
+				TakeCardsInField(playerDeck[2], collectcard);
+				printf("정답! 플레이어 2 득점\n");
+			}
+			if (IsFiveFruits(countcard) == false) {
+				printf("오답! 플레이어 2 감점\n");
 
-			printcard = Pop(playerDeck[2]);
-			Push(playerDeck[1], printcard);
-
-			printcard = Pop(playerDeck[2]);
-			Push(playerDeck[3], printcard);
+				for(i = 0; i < PLAYER_MAX_CNT; i++){
+					printcard = Pop(playerDeck[2]);
+					if(printcard != -1){ 
+						if(i != 2  && playerGameOvered[i] == false){
+							Push(playerDeck[i], printcard);		
+						}
+					} else{
+						if(CheckIfGameOver()){
+							exit(0);
+						}
+					}
+				}
+			}
 		}
 		break;
 	case 93: // 4player
-		if (IsFiveFruits(countcard) == true) {
-			TakeCardsInField(playerDeck[3], collectcard);
-		}
-		if (IsFiveFruits(countcard) == false) {
-			printcard = Pop(playerDeck[3]);
-			Push(playerDeck[0], printcard);
+	   	if(playerGameOvered[3] == false){
+			if (IsFiveFruits(countcard) == true) {
+				TakeCardsInField(playerDeck[3], collectcard);
+				printf("정답! 플레이어 3 득점\n");
+			}
+			if (IsFiveFruits(countcard) == false) {
+				printf("오답! 플레이어 3 감점\n");
 
-			printcard = Pop(playerDeck[3]);
-			Push(playerDeck[1], printcard);
-
-			printcard = Pop(playerDeck[3]);
-			Push(playerDeck[2], printcard);
+				for(i = 0; i < PLAYER_MAX_CNT; i++){
+					printcard = Pop(playerDeck[3]);
+					if(printcard != -1){ 
+						if(i != 3  && playerGameOvered[i] == false){
+							Push(playerDeck[i], printcard);		
+						}
+					} else{
+						if(CheckIfGameOver()){
+							exit(0);
+						}
+					}
+				}
+			}
 		}
 		break;
+	}
+
+	for (i = 0; i < PLAYER_MAX_CNT; i++) {
+		printf("\n [%d]player deck의 상위 세 장 :", i + 1);
+		for (j = 0; j < 3; j++) {
+			printf("[%d]", playerDeck[i][j]);
+		}
+	}
+	printf("\n");
+
+	if(CheckIfGameOver()){
+		exit(0);
 	}
 }
 
@@ -518,45 +603,45 @@ void* InputGameKey(void *data)
 		//printf(" [%d this hit!!] ", ch); (확인용)
 
 		// 종 누르는 거
-		if (ch == 119) {
-			printf("[1player] ring ");
+		if (ch == 119) { // W
+			// printf("[1player] ring ");
 			return (void *)119;
 		}
-		else if (ch == 120) {
-			printf("[2player] ring ");
+		else if (ch == 120) { // X
+			// printf("[2player] ring ");
 			return (void *)120;
 		}
-		else if (ch == 47) {
-			printf("[3player] ring ");
+		else if (ch == 47) { // /
+			// printf("[3player] ring ");
 			return (void *)47;
 		}
-		else if (ch == 93) {
-			printf("[4player] ring ");
+		else if (ch == 93) { // ]
+			// printf("[4player] ring ");
 			return (void *)93;
 		}
 
 		// 카드 넘기는거
 		switch (count) {
 		case 0:
-			if (ch == 113) {
+			if (ch == 113) { // Q
 				printf("[1player] open ");
 				return (void *)113;
 			}
 			break;
 		case 1:
-			if (ch == 122) {
+			if (ch == 122) { // Z
 				printf("[2player] open ");
 				return (void *)122;
 			}
 			break;
 		case 2:
-			if (ch == 46) {
+			if (ch == 46) { // . 
 				printf("[3player] open ");
 				return (void *)46;
 			}
 			break;
 		case 3:
-			if (ch == 91) {
+			if (ch == 91) { // [
 				printf("[4player] open ");
 				return (void *)91;
 			}
