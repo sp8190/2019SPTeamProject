@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS //fopen_s와 같은 보안 오류를 막는다.
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -257,9 +256,9 @@ bool CheckIfGameOver(){
 /* 사용자의 이름 수정 */
 void ModifyName() {
 	/* 사용자의 디폴트 네임 */
-	/*
-	// 공사중..
 	int num;
+	char *modName;
+	int i, myInputLen = 0, myInputLenCpy=0;
 	do {
 		do {
 			printf("사용자1: %s\n", user[0]);
@@ -269,26 +268,25 @@ void ModifyName() {
 
 			printf("수정할 사용자의 번호를 입력해주세요(1~4)\n");
 			printf("해당 항목에서 벗어나시려면 0을 눌러주세요.\n");
-			// scanf_s("%d", &num);
+			scanf("%d", &num);
 		} while (num < 0 || num > 4);
 
 		if (num == 0)
 			break;
 
-		char *modName;
 		do {
-			int i, myInputLen = 0;
 			modName = "\0";
 			modName = malloc(sizeof(char) * BUFSIZE); // +1은 맨 뒤의 NULL 고려한 것
 			user[num - 1] = NULL; //배열 초기화
 			printf("사용자%d의 정보를 수정하겠습니다.\n", num);
 			printf("변경할 이름을 적어주십시오. : ");
-			// scanf_s("%s", modName, sizeof(char)*BUFSIZE); //사용자가 입력한 정보로 변경
-			// myInputLen = strlen(modName);
-			for (i = 0; i < 0; i++) {
+			scanf("%s", modName); //사용자가 입력한 정보로 변경
+			myInputLen = strlen(modName);
+			myInputLenCpy = myInputLen;
+			for (i = 0; i < myInputLenCpy; i++) {
 				if (((int)modName[i]) <= 32 || ((int)modName[i]) >= 127) { // 출력가능 아스키코드 아닌 문자
-					i++;
-					myInputLen--;
+					i+=2;
+					myInputLen-=2;
 				}
 			}
 			if (myInputLen <= MAX_NAME_LENGTH) {
@@ -300,28 +298,25 @@ void ModifyName() {
 		} while (true);
 		user[num-1] = modName;
 	} while (true);
-	*/
 }
 
 /* 게임 방법 설명 출력(txt 파일 읽어옴) */
 void GameDescription() {
-	char buffer[MAX];    // 파일을 읽을 때 사용할 임시 공간
-	int lineCount = 0;
+	char buffer[MAX];
+	int readn = 0;
+	int fp;
 
-	FILE* fp = fopen("Description.txt", "r");    // txt 파일을 읽기 모드로 열기.  
+	fp = open("description.txt", O_RDONLY);//읽기 전용으로 파일을 읽는다.
 
-	if (fp == NULL) {//파일 오류시 에러메시지를 발생시킨다.
-		printf("파일 출력시 에러가 발생하였습니다.");
-		// return 0;
+	if (fp < 0) {//에러 메시지 호출
+		perror("파일 에러입니다.");
+		return 0;
 	}
-	while (fgets(buffer, sizeof(buffer), fp) != NULL) {//한줄씩 txt파일의 설명문을 출력한다. ex)1. 게임을 시작~~~
-		lineCount++;
-		printf("%d. %s", lineCount, buffer);//설명문 앞에 숫자를 붙여준다.
-	}    //txt에서 문자열을 읽음
 
-	fclose(fp);    // 파일 포인터 닫기
-	printf("\n\n");
-	// return 0;
+	readn = read(fp, buffer, MAX - 1);//fp의 내용을 buffer에 MAX-1만큼 읽는다.
+	printf("%s\n", buffer);//buffer의 내용 출력
+
+	close(fp);
 }
 
 
@@ -654,13 +649,11 @@ void* InputGameKey(void *data)
 void main(void) {
 	//초기 이름 할당
 	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
-	/*
-	strcpy에 문제가 생겨서 테스트
-	for (int i = 0; i < 4; i++) {
+	int i;
+	for (i = 0; i < 4; i++) {
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
-		// strcpy_s(user[i], sizeof(char)*BUFSIZE, defaultUserName[i]);
+		strcpy(user[i], defaultUserName[i]);
 	}
-	*/
 
 
 	//메인 실행플로우
