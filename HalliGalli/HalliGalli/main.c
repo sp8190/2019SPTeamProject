@@ -598,7 +598,7 @@ void* Gamescreen(void *data)
 
 	for (i = 0; i < PLAYER_MAX_CNT; i++) {
 		printf("\n [%d]player deck의 상위 세 장 :", i + 1);
-		for (j = 0; j < 30; j++) {
+		for (j = 0; j < 3; j++) {
 			printf("[%d]", playerDeck[i][j]);
 		}
 	}
