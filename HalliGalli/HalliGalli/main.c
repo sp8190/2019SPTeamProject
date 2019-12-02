@@ -33,8 +33,8 @@ int Push(int *deck, int cardNum);
 int Pop(int *deck);
 void Shuffle();
 void DrawPlayerCard(int playerNum);
-void GameStart()
-int getch(void)
+void GameStart();
+int getch(void);
 void* Gamescreen(void *data);
 void* InputGameKey(void *data);
 
