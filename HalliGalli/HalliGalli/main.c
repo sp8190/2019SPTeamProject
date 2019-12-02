@@ -41,10 +41,10 @@ void* InputGameKey(void *data);
 /* 인자로 들어온 deck의 카드의 개수 반환 */
 int DeckCount(int *deck) {
 	int deckCount = 0;
-	int decksize = sizeof(deck) / sizeof(deck[0]); // deck 배열의 크기
 	int i;
 
-	for (i = 0; i < decksize; i++) {
+	for (i = 0; i < DECK_MAX_CNT; i++) {
+		// printf("deck[i] : %d\n",deck[i]);
 		if (deck[i] == 0) {
 			deckCount = i;
 			break;
@@ -238,7 +238,7 @@ void ModifyName() {
 
 			printf("수정할 사용자의 번호를 입력해주세요(1~4)\n");
 			printf("해당 항목에서 벗어나시려면 0을 눌러주세요.\n");
-			scanf_s("%d", &num);
+			// scanf_s("%d", &num);
 		} while (num < 0 || num > 4);
 
 		if (num == 0)
@@ -252,9 +252,9 @@ void ModifyName() {
 			user[num - 1] = NULL; //배열 초기화
 			printf("사용자%d의 정보를 수정하겠습니다.\n", num);
 			printf("변경할 이름을 적어주십시오. : ");
-			scanf_s("%s", modName, sizeof(char)*BUFSIZE); //사용자가 입력한 정보로 변경
-			myInputLen = strlen(modName);
-			for (i = 0; i < strlen(modName); i++) {
+			// scanf_s("%s", modName, sizeof(char)*BUFSIZE); //사용자가 입력한 정보로 변경
+			// myInputLen = strlen(modName);
+			for (i = 0; i < 0; i++) {
 				if (((int)modName[i]) <= 32 || ((int)modName[i]) >= 127) { // 출력가능 아스키코드 아닌 문자
 					i++;
 					myInputLen--;
@@ -281,7 +281,7 @@ void GameDescription() {
 
 	if (fp == NULL) {//파일 오류시 에러메시지를 발생시킨다.
 		printf("파일 출력시 에러가 발생하였습니다.");
-		return 0;
+		// return 0;
 	}
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {//한줄씩 txt파일의 설명문을 출력한다. ex)1. 게임을 시작~~~
 		lineCount++;
@@ -290,7 +290,7 @@ void GameDescription() {
 
 	fclose(fp);    // 파일 포인터 닫기
 	printf("\n\n");
-	return 0;
+	// return 0;
 }
 
 /* halli galli 게임 시작하는함수 */
@@ -309,13 +309,13 @@ void GameStart() {
 
 		Shuffle(); // 패 섞어서 4명에게 나누어줌
 
-		/* 패가 어떻게 섞였는지 확인하고 싶을 때 이 for문 주석 풀기
-		for(int i = 0; i < 4; i++){
-		   printf("플레이어 %d의 패 ",i);
-		   for(int j=0; j<DECK_MAX_CNT/PLAYER_MAX_CNT; j++)
-			 printf("%d  ", playerDeck[i][j]);
-		   printf("\n");
-		} */
+		//  패가 어떻게 섞였는지 확인하고 싶을 때 이 for문 주석 풀기
+		// for(int i = 0; i < 4; i++){
+		//    printf("플레이어 %d의 패 ",i);
+		//    for(int j=0; j<DECK_MAX_CNT/PLAYER_MAX_CNT; j++)
+		// 	 printf("%d  ", playerDeck[i][j]);
+		//    printf("\n");
+		// } 
 
 		for (int i = 0; i < PLAYER_MAX_CNT; i++) // 각 플레이어의 카드패 공개
 			DrawPlayerCard(i);
@@ -405,7 +405,6 @@ void* Gamescreen(void *data)
 {
 	int open = *((int *)data); // 누가 카드를 냈나?
 	int printcard = 0;
-
 
 	// 카드 넘겼을 때 화면 출력
 	switch (open) {
@@ -569,7 +568,7 @@ void main(void) {
 	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
 	for (int i = 0; i < 4; i++) {
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
-		strcpy_s(user[i], sizeof(char)*BUFSIZE, defaultUserName[i]);
+		// strcpy_s(user[i], sizeof(char)*BUFSIZE, defaultUserName[i]);
 	}
 
 
@@ -582,7 +581,7 @@ void main(void) {
 		printf("3.게임 방법 설명\n");
 		printf("4.게임 종료\n");
 		printf("원하시는 항목을 선택해주세요.:");
-		scanf_s("%d", &select);
+		scanf("%d", &select);
 
 		if (select == 1)
 			GameStart();
