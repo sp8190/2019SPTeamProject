@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS //fopen_s와 같은 보안 오류를 막는다.
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -277,23 +276,21 @@ void ModifyName() {
 
 /* 게임 방법 설명 출력(txt 파일 읽어옴) */
 void GameDescription() {
-	char buffer[MAX];    // 파일을 읽을 때 사용할 임시 공간
-	int lineCount = 0;
+	char buffer[MAX];
+	int readn = 0;
+	int fp;
 
-	FILE* fp = fopen("Description.txt", "r");    // txt 파일을 읽기 모드로 열기.  
+	fp = open("description.txt", O_RDONLY);//읽기 전용으로 파일을 읽는다.
 
-	if (fp == NULL) {//파일 오류시 에러메시지를 발생시킨다.
-		printf("파일 출력시 에러가 발생하였습니다.");
-		// return 0;
+	if (fp < 0) {//에러 메시지 호출
+		perror("파일 에러입니다.");
+		return 0;
 	}
-	while (fgets(buffer, sizeof(buffer), fp) != NULL) {//한줄씩 txt파일의 설명문을 출력한다. ex)1. 게임을 시작~~~
-		lineCount++;
-		printf("%d. %s", lineCount, buffer);//설명문 앞에 숫자를 붙여준다.
-	}    //txt에서 문자열을 읽음
 
-	fclose(fp);    // 파일 포인터 닫기
-	printf("\n\n");
-	// return 0;
+	readn = read(fp, buffer, MAX - 1);//fp의 내용을 buffer에 MAX-1만큼 읽는다.
+	printf("%s\n", buffer);//buffer의 내용 출력
+
+	close(fp);
 }
 
 /* halli galli 게임 시작하는함수 */

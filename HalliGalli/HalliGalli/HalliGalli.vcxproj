@@ -129,7 +129,7 @@
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Description.txt" />
+    <Text Include="..\..\..\..\..\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\tim960321\description.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
