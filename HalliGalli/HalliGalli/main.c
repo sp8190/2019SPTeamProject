@@ -415,6 +415,7 @@ void GameStart() {
 
 			// 게임이 진행되는 부분
 			pthread_create(&p_thread[1], NULL, Gamescreen, (void *)&key);
+			if (key == 113 || key == 122 || key == 46 || key == 91) sleep(1); // 1초 동안 딜레이(카드냈을 때)
 			pthread_create(&p_thread[0], NULL, InputGameKey, (void *)&start);
 
 			pthread_join(p_thread[1], NULL);
