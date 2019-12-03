@@ -47,24 +47,29 @@ void DrawScreen(){
 		//게임 화면 출력하고
 		system("clear");
 		printf("-------------------------------------------------------------------------------\n");
-		printf("\n");		
-		
+		printf("                            [ %d ]", DeckCount(playerDeck[0]));
+		printf("\n");				
 		printf("                          ");
 		DrawPlayerCard2(0); //player1 최상위 패출력
 		printf("\n");
 		printf("\n");
-		printf("    ");
+		printf(" [ %d ]", DeckCount(playerDeck[1]));
 		DrawPlayerCard2(1);//player2 최상위 패출력
 		printf("                                      ");
 		DrawPlayerCard2(3);//player3 최상위 패출력
+		if(countcard[3]==-1)
+			printf("     ");
+		if(countcard[1]==-1)
+			printf("     ");
+		printf(" [ %d ]", DeckCount(playerDeck[3]));
 		printf("\n");
 		printf("\n");
 		printf("                          ");
 		DrawPlayerCard2(2);//player4 최상위 패출력		
 		printf("\n");		
+		printf("                            [ %d ]", DeckCount(playerDeck[2]));
 		printf("\n");		
 		printf("-------------------------------------------------------------------------------\n");
-
 }
 
 /* 인자로 들어온 deck의 카드의 개수 반환 */
@@ -606,6 +611,7 @@ void* Gamescreen(void *data)
 					}
 				}
 			}
+			DrawScreen();
 		}
 		break;
 	case 120: // 2player
@@ -630,6 +636,7 @@ void* Gamescreen(void *data)
 					}
 				}
 			}
+			DrawScreen();
 		}
 		break;
 	case 47: // 3player
@@ -655,6 +662,7 @@ void* Gamescreen(void *data)
 					}
 				}
 			}
+			DrawScreen();
 		}
 		break;
 	case 93: // 4player
@@ -680,6 +688,7 @@ void* Gamescreen(void *data)
 					}
 				}
 			}
+			DrawScreen();
 		}
 		break;
 	}
