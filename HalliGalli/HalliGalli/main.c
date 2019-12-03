@@ -48,23 +48,23 @@ void DrawScreen(){
 		system("clear");
 		printf("-------------------------------------------------------------------------------\n");
 		if(playerGameOvered)
-			printf("                          %s [ %d ]",user[0], DeckCount(playerDeck[0]));
+			printf("                            [ %d ]", DeckCount(playerDeck[0]));
 		printf("\n");				
 		printf("                          ");
 		DrawPlayerCard2(0); //player1 최상위 패출력
 		printf("\n");
 		printf("\n");
 		if(playerGameOvered)
-			printf(" %s [ %d ]",user[1], DeckCount(playerDeck[1]));
+			printf(" [ %d ]", DeckCount(playerDeck[1]));
 		DrawPlayerCard2(1);//player2 최상위 패출력
-		printf("                        ");
+		printf("                                      ");
 		DrawPlayerCard2(3);//player3 최상위 패출력
 		if(playerGameOvered && countcard[3]==-1)
 			printf("     ");
 		if(playerGameOvered && countcard[1]==-1)
 			printf("     ");
 		if(playerGameOvered)
-			printf(" [ %d ] %s",DeckCount(playerDeck[3]),user[3]);
+			printf(" [ %d ]", DeckCount(playerDeck[3]));
 		printf("\n");
 		printf("\n");
 		printf("                          ");
@@ -72,7 +72,7 @@ void DrawScreen(){
 			DrawPlayerCard2(2);//player4 최상위 패출력		
 		printf("\n");		
 		if(playerGameOvered)
-			printf("                           %s [ %d ]",user[2], DeckCount(playerDeck[2]));
+			printf("                            [ %d ]", DeckCount(playerDeck[2]));
 		printf("\n");		
 		printf("-------------------------------------------------------------------------------\n");
 
@@ -420,8 +420,7 @@ void ModifyName() {
 void GameDescription() {
 	char buffer[MAX];
 	int readn = 0;
-	int fp; 
-	char touch;
+	int fp, touch;
 	system("clear");
 	fp = open("description.txt", O_RDONLY);//읽기 전용으로 파일을 읽는다.
 	if (fp < 0) {//에러 메시지 호출
@@ -429,12 +428,14 @@ void GameDescription() {
 		return;
 	}
 	readn = read(fp, buffer, MAX - 1);//fp의 내용을 buffer에 MAX-1만큼 읽는다.
-	while (touch != '0'){
+	do {
 		system("clear");
 		printf("%s\n", buffer);//buffer의 내용 출력
-		scanf("%c", &touch);
-	}
+		printf("해당항목에서 벗어나시려면 0을 눌려주세요: ");
+		scanf("%d", &touch);
+	} while (touch != 0);
 	close(fp);
+	getchar();
 }
 
 
