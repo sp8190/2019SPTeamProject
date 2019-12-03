@@ -10,6 +10,11 @@
 #include <termios.h>
 #include <fcntl.h>
 
+#include <errno.h>
+#include <signal.h>
+#include <sys/time.h>
+
+
 #define DECK_MAX_CNT 56
 #define PLAYER_MAX_CNT 4
 #define MAX_NAME_LENGTH 10   // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
@@ -332,6 +337,26 @@ void Init()
 	}
 	Shuffle();
 }
+
+static void myhandler(int s){
+	printf("handled\n");
+}
+
+static int setup(){
+	struct sigaction act;
+	act.sa_handler = myhandler;
+	act.sa_flags = 0;
+	return( sigemptyset(&act.sa_mask) == -1 || sigaction(SIGALRM, &act, NULL) == -1);
+}
+
+static int timertry(){
+	struct itimerval value;
+	value.it_interval.tv_sec = 2;
+	value.it_interval.tv_usec = 0;
+	value.it_value = value.it_interval;
+	return setitimer(ITIMER_REAL, &value, NULL);
+}
+
 // 종료할때 실행해서 여러가지 정리해주는 함수
 void ExitCleaner()
 {
@@ -470,6 +495,13 @@ void GameStart() {
 		// }
 
 		printf("%d player turn", start + 1);
+		
+		if(setup() == -1)
+			printf("setuperror");
+		if(timertry() == -1)
+			printf("timererror");
+
+
 
 		while (1) {
 
@@ -779,6 +811,8 @@ void main(void) {
 	do {
 		system("clear");			
 		int select;
+		
+
 		printf("할리갈리\n\n");
 		printf("1.게임 시작\n");
 		printf("2.사용자 이름 수정\n");
