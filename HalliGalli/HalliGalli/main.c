@@ -242,7 +242,6 @@ void DrawPlayerCard(int playerNum)
 
 // 한 사용자라도 카드가 0장인지 체크해서 게임이 끝났는지 확인
 bool CheckIfGameOver(){
-	bool allGameOver = false;
 	int gameOveredPlayers = 0; // 게임 오버된 플레이어의 수
 	int i;
 	for(i = 0; i < PLAYER_MAX_CNT; i++){		
@@ -262,6 +261,20 @@ bool CheckIfGameOver(){
 	return false;
 }
 
+// 실행시 생성자 역할
+void Init()
+{
+	int i;
+	for(i = 0; i < PLAYER_MAX_CNT; i++){
+		playerGameOvered[i] = false;
+		countcard[i] = -1;
+		collectnum = 0;
+	}
+	for(i = 0; i < DECK_MAX_CNT; i++){
+		collectcard[i] = -1;
+	}
+	Shuffle();
+}
 // 종료할때 실행해서 여러가지 정리해주는 함수
 void ExitCleaner()
 {
@@ -358,12 +371,11 @@ void GameStart() {
 	}
 	else if (childPid == 0) { // 자식 코드. 게임이 실행되는 프로세스
 	   //게임 화면 출력하고
+		Init(); // 생성자
 		printf("--------------------------------------------------------------------------------------------------------------\n");
 		printf("\n");
 		printf("\n");
 		printf("\n");
-
-		Shuffle(); // 패 섞어서 4명에게 나누어줌
 
 		//  패가 어떻게 섞였는지 확인하고 싶을 때 이 for문 주석 풀기
 		// for(int i = 0; i < 4; i++){
@@ -605,17 +617,17 @@ void* Gamescreen(void *data)
 		break;
 	}
 
-	for (i = 0; i < PLAYER_MAX_CNT; i++) {
-		printf("\n [%d]player deck의 상위 세 장 :", i + 1);
-		for (j = 0; j < 30; j++) {
-			printf("[%d]", playerDeck[i][j]);
-		}
-	}
-	printf("\n field : ");
-	for (i = 0; i < PLAYER_MAX_CNT; i++) {
-		printf(" %d ,", countcard[i]);
+	// for (i = 0; i < PLAYER_MAX_CNT; i++) {
+	// 	printf("\n [%d]player deck의 상위 세 장 :", i + 1);
+	// 	for (j = 0; j < 30; j++) {
+	// 		printf("[%d]", playerDeck[i][j]);
+	// 	}
+	// }
+	// printf("\n field : ");
+	// for (i = 0; i < PLAYER_MAX_CNT; i++) {
+	// 	printf(" %d ,", countcard[i]);
 
-	}
+	// }
 
 	printf("\n");
 
