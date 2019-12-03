@@ -35,10 +35,37 @@ int Push(int *deck, int cardNum);
 int Pop(int *deck);
 void Shuffle();
 void DrawPlayerCard(int playerNum);
+void DrawPlayerCard2(int playerNum); //player가 낸 deck의 최상위 값 출력
 void GameStart();
 int getch(void);
 void* Gamescreen(void *data);
 void* InputGameKey(void *data);
+void DrawScreen();
+
+/* 화면 그려주는 함수 */
+void DrawScreen(){
+		//게임 화면 출력하고
+		system("clear");
+		printf("-------------------------------------------------------------------------------\n");
+		printf("\n");		
+		
+		printf("                          ");
+		DrawPlayerCard2(0); //player1 최상위 패출력
+		printf("\n");
+		printf("\n");
+		printf("    ");
+		DrawPlayerCard2(1);//player2 최상위 패출력
+		printf("                                      ");
+		DrawPlayerCard2(3);//player3 최상위 패출력
+		printf("\n");
+		printf("\n");
+		printf("                          ");
+		DrawPlayerCard2(2);//player4 최상위 패출력		
+		printf("\n");		
+		printf("\n");		
+		printf("-------------------------------------------------------------------------------\n");
+
+}
 
 /* 인자로 들어온 deck의 카드의 개수 반환 */
 int DeckCount(int *deck) {
@@ -239,6 +266,36 @@ void DrawPlayerCard(int playerNum)
     }
     printf("\n\n\n");
 }
+void DrawPlayerCard2(int playerNum) //player가 낸 deck의 최상위 값 출력
+{
+    //printf("플레이어 %d\n",playerNum+1);
+    if(countcard[playerNum] != -1) {
+	    int fruitCnt = GetFruitCnt(countcard[playerNum]); // 덱의 가장 앞에 있는 카드 출력
+	    char* fruitType;
+	    switch(GetFruitType(countcard[playerNum])){ 
+	        case 0:
+	            fruitType = "♤";
+	            break;
+	        case 1:
+	            fruitType = "♡";
+	            break;
+	        case 2:
+	            fruitType = "♧";
+	            break;
+	        case 3:
+	            fruitType = "◇";
+	            break;
+	    }
+	    //printf("과일\n");
+	    for(int i=0; i<5-fruitCnt; i++){
+	    	printf(" ");
+	    }
+	    for(int i = 0; i < fruitCnt; i++){
+	        printf("%s",fruitType);
+	    }
+	    //printf("\n\n\n");
+	}
+}
 
 // 한 사용자라도 카드가 0장인지 체크해서 게임이 끝났는지 확인
 bool CheckIfGameOver(){
@@ -289,6 +346,7 @@ void ModifyName() {
 	int i, myInputLen = 0, myInputLenCpy = 0;
 	do {
 		do {
+			system("clear");	
 			write(1, "사용자1: ", strlen("사용자1: "));
 			write(1, user[0], strlen(user[0]));
 			write(1, "\n사용자2: ", strlen("\n사용자1: "));
@@ -347,7 +405,7 @@ void GameDescription() {
 	char buffer[MAX];
 	int readn = 0;
 	int fp;
-
+	system("clear");	
 	fp = open("description.txt", O_RDONLY);//읽기 전용으로 파일을 읽는다.
 
 	if (fp < 0) {//에러 메시지 호출
@@ -372,7 +430,8 @@ void GameStart() {
 	else if (childPid == 0) { // 자식 코드. 게임이 실행되는 프로세스
 	   //게임 화면 출력하고
 		Init(); // 생성자
-		printf("--------------------------------------------------------------------------------------------------------------\n");
+		system("clear");
+		printf("-------------------------------------------------------------------------------\n");
 		printf("\n");
 		printf("\n");
 		printf("\n");
@@ -387,11 +446,11 @@ void GameStart() {
 
 		// for (int i = 0; i < PLAYER_MAX_CNT; i++) // 각 플레이어의 카드패 공개
 		// 	DrawPlayerCard(i);
-
 		printf("\n");
 		printf("\n");
 		printf("\n");
-		printf("--------------------------------------------------------------------------------------------------------------\n");
+		printf("\n");
+		printf("-------------------------------------------------------------------------------\n");
 
 		//쓰레드 두개 돌려서 게임이 진행되는 부분과 입력을 받는 부분으로 나눈다
 
@@ -487,6 +546,7 @@ void* Gamescreen(void *data)
 			countcard[0] = printcard; // 1player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			DrawScreen();
 		}
 		break;
 	case 122: // 2player
@@ -496,6 +556,7 @@ void* Gamescreen(void *data)
 			countcard[1] = printcard; // 2player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			DrawScreen();
 		}
 		break;
 	case 46: // 3player
@@ -505,6 +566,7 @@ void* Gamescreen(void *data)
 			countcard[2] = printcard; // 3player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			DrawScreen();
 		}
 		break;
 	case 91: // 4player
@@ -514,6 +576,7 @@ void* Gamescreen(void *data)
 			countcard[3] = printcard; // 4player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			DrawScreen();
 		}
 		break;
 	}
@@ -524,6 +587,7 @@ void* Gamescreen(void *data)
 	   	if(playerGameOvered[0] == false){
 			if (IsFiveFruits(countcard) == true) {	   // 알맞게 종을 눌렀을 경우
 				TakeCardsInField(playerDeck[0], collectcard);
+				DrawScreen();
 				printf("정답! 플레이어 0 득점\n");
 			}
 			// 종이 틀렸을 경우
@@ -548,6 +612,7 @@ void* Gamescreen(void *data)
 	   	if(playerGameOvered[1] == false){
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[1], collectcard);
+				DrawScreen();
 				printf("정답! 플레이어 1 득점\n");
 			}
 			else if (IsFiveFruits(countcard) == false) {
@@ -571,6 +636,7 @@ void* Gamescreen(void *data)
 	   	if(playerGameOvered[2] == false){
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[2], collectcard);
+				DrawScreen();
 				printf("정답! 플레이어 2 득점\n");
 			}
 			else if (IsFiveFruits(countcard) == false) {
@@ -595,6 +661,7 @@ void* Gamescreen(void *data)
 	   	if(playerGameOvered[3] == false){
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[3], collectcard);
+				DrawScreen();
 				printf("정답! 플레이어 3 득점\n");
 			}
 			else if (IsFiveFruits(countcard) == false) {
@@ -710,6 +777,7 @@ void main(void) {
 
 	//메인 실행플로우
 	do {
+		system("clear");			
 		int select;
 		printf("할리갈리\n\n");
 		printf("1.게임 시작\n");
