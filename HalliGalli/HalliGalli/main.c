@@ -10,6 +10,11 @@
 #include <termios.h>
 #include <fcntl.h>
 
+#include <errno.h>
+#include <signal.h>
+#include <sys/time.h>
+
+
 #define DECK_MAX_CNT 56
 #define PLAYER_MAX_CNT 4
 #define MAX_NAME_LENGTH 10   // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
@@ -348,6 +353,26 @@ void Init()
 	}
 	Shuffle();
 }
+
+static void myhandler (int s){
+	printf("handled\n");
+}
+
+static int setup(){
+	struct sigaction act;
+	act.sa_handler = myhandler;
+	act.sa_flags = 0;
+	return(  sigemptyset(&act.sa_mask)==-1 || sigaction(SIGALRM, &act, NULL) == -1);
+}
+
+static int timetry(){
+	struct itimerval value;
+	value.it_interval.tv_sec = 2;
+	value.it_interval.tv_usec = 0;
+	value.it_value = value.it_interval;
+	return setitimer(ITIMER_REAL, &value, NULL);
+}
+
 // 종료할때 실행해서 여러가지 정리해주는 함수
 void ExitCleaner()
 {
@@ -491,6 +516,15 @@ void GameStart() {
 
 		printf("%d player turn", start + 1);
 
+
+		if(setup()==-1)
+			printf("setuperror");
+		if(timetry()==-1)
+			printf("timererror");
+
+
+
+
 		while (1) {
 
 			for (i = 0; i < PLAYER_MAX_CNT; i++) {
@@ -608,10 +642,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {	   // 알맞게 종을 눌렀을 경우
 				TakeCardsInField(playerDeck[0], collectcard);
 				printf("정답! 플레이어 1 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			// 종이 틀렸을 경우
 			else if (IsFiveFruits(countcard) == false) {
@@ -637,10 +668,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[1], collectcard);
 				printf("정답! 플레이어 2 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 2 감점\n");
@@ -665,10 +693,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[2], collectcard);
 				printf("정답! 플레이어 3 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 4 감점\n");
@@ -694,10 +719,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[3], collectcard);
 				printf("정답! 플레이어 4 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 4 감점\n");
