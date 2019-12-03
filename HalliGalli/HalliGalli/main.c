@@ -609,10 +609,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {	   // 알맞게 종을 눌렀을 경우
 				TakeCardsInField(playerDeck[0], collectcard);
 				printf("정답! 플레이어 1 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			// 종이 틀렸을 경우
 			else if (IsFiveFruits(countcard) == false) {
@@ -638,10 +635,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[1], collectcard);
 				printf("정답! 플레이어 2 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 2 감점\n");
@@ -666,10 +660,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[2], collectcard);
 				printf("정답! 플레이어 3 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 4 감점\n");
@@ -695,10 +686,7 @@ void* Gamescreen(void *data)
 			if (IsFiveFruits(countcard) == true) {
 				TakeCardsInField(playerDeck[3], collectcard);
 				printf("정답! 플레이어 4 득점\n");
-				for(i=0; i<PLAYER_MAX_CNT; i++){
-					if(DeckCount(playerDeck[i]) == 0)
-						playerGameOvered[i]=true;
-				}
+				CheckIfGameOver();
 			}
 			else if (IsFiveFruits(countcard) == false) {
 				printf("오답! 플레이어 4 감점\n");
