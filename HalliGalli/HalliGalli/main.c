@@ -20,8 +20,8 @@ char *user[4]; // 10글자 제한으로 잡았으나, 한글을 고려하여 20�
 
 //일단 걍 전역으로 두겠음 
 int playerDeck[PLAYER_MAX_CNT][DECK_MAX_CNT]; //플레이어 4명의 덱
-int countcard[4] = { 0 }; // 플레이어들이 낸 맨 앞 카드
-int collectcard[56] = { 0 }; // 쌓이는 카드들
+int countcard[4] = { -1, -1, -1, -1 }; // 플레이어들이 낸 맨 앞 카드
+int collectcard[56] = { -1, }; // 쌓이는 카드들
 int collectnum = 0; // 쌓이는 횟수
 bool playerGameOvered[PLAYER_MAX_CNT] = {false, false, false, false}; //플레이어 4명이 게임오버인지 아닌지
 
@@ -124,20 +124,23 @@ void TakeCardsInField(int *deck, int *field) {
 	deckcount = DeckCount(deck); // 위 구문을 함수로 대체했음
 
 	// field배열 에서 몇번째부터 카드가 없는지 
-	for (i = 0; i < fieldsize; i++) { //여기도 deckCount처럼 함수로 대체 가능함
-		if (field[i] == 0) {
-			fieldcount = i;
-			break;
-		}
-	}
+	// for (i = 0; i < fieldsize; i++) { //여기도 deckCount처럼 함수로 대체 가능함
+	// 	if (field[i] == -1) {
+	// 		fieldcount = i;
+	// 		break;
+	// 	}
+	// }
 
 	// field배열안 변수들 deck배열에 넣기
-	for (i = 0; i < fieldsize; i++) {
-		deck[deckcount + i] = field[i];
-		field[i] = 0; // field 비우는 구문 없어서 추가함
+	for (i = 0; i < collectnum; i++) {
+		// deck[deckcount + i] = field[i];
+		// if(field[i] != -1){
+			Push(deck, field[i]);
+			field[i] = -1; // field 비우는 구문 없어서 추가함
+		// }
 	}
 	for (i = 0; i < 4; i++) 
-		countcard[i] = 0; // 얘도 마찬가지로 비우는 구문 추가
+		countcard[i] = -1; // 얘도 마찬가지로 비우는 구문 추가
 }
 
 /* int[4] 형태인 field에 같은 과일종류가 5개가 있는지 확인 */
@@ -145,7 +148,8 @@ bool IsFiveFruits(int *field) {
 	int fieldCpy[4] = { 0 };
 	int i;
 	for (i = 0; i < 4; i++) {
-		fieldCpy[GetFruitType(field[i])] += GetFruitCnt(field[i]);
+		if(field[i] != -1)
+			fieldCpy[GetFruitType(field[i])] += GetFruitCnt(field[i]);
 	}
 	//총합 5개인 과일 있는지 확인
 	for (i = 0; i < 4; i++) {
@@ -469,6 +473,7 @@ void* Gamescreen(void *data)
 			printcard = Pop(playerDeck[0]);
 			countcard[0] = printcard; // 1player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
+			collectnum++;
 		}
 		break;
 	case 122: // 2player
@@ -477,6 +482,7 @@ void* Gamescreen(void *data)
 			printcard = Pop(playerDeck[1]);
 			countcard[1] = printcard; // 2player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
+			collectnum++;
 		}
 		break;
 	case 46: // 3player
@@ -485,6 +491,7 @@ void* Gamescreen(void *data)
 			printcard = Pop(playerDeck[2]);
 			countcard[2] = printcard; // 3player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
+			collectnum++;
 		}
 		break;
 	case 91: // 4player
@@ -493,6 +500,7 @@ void* Gamescreen(void *data)
 			printcard = Pop(playerDeck[3]);
 			countcard[3] = printcard; // 4player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
+			collectnum++;
 		}
 		break;
 	}
@@ -598,10 +606,16 @@ void* Gamescreen(void *data)
 
 	for (i = 0; i < PLAYER_MAX_CNT; i++) {
 		printf("\n [%d]player deck의 상위 세 장 :", i + 1);
-		for (j = 0; j < 3; j++) {
+		for (j = 0; j < 30; j++) {
 			printf("[%d]", playerDeck[i][j]);
 		}
 	}
+	printf("\n field : ");
+	for (i = 0; i < PLAYER_MAX_CNT; i++) {
+		printf(" %d ,", countcard[i]);
+
+	}
+
 	printf("\n");
 
 	if(CheckIfGameOver()){
