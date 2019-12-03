@@ -404,19 +404,22 @@ void ModifyName() {
 void GameDescription() {
 	char buffer[MAX];
 	int readn = 0;
-	int fp;
-	system("clear");	
+	int fp, touch;
+	system("clear");
 	fp = open("description.txt", O_RDONLY);//읽기 전용으로 파일을 읽는다.
-
 	if (fp < 0) {//에러 메시지 호출
 		perror("파일 에러입니다.");
 		return;
 	}
-
 	readn = read(fp, buffer, MAX - 1);//fp의 내용을 buffer에 MAX-1만큼 읽는다.
-	printf("%s\n", buffer);//buffer의 내용 출력
-
+	do {
+		system("clear");
+		printf("%s\n", buffer);//buffer의 내용 출력
+		printf("해당항목에서 벗어나시려면 0을 눌려주세요: ");
+		scanf("%d", &touch);
+	} while (touch != 0);
 	close(fp);
+	getchar();
 }
 
 
