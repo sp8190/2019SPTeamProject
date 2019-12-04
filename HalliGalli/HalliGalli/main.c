@@ -9,11 +9,9 @@
 #include <pthread.h>
 #include <termios.h>
 #include <fcntl.h>
-
 #include <errno.h>
 #include <signal.h>
 #include <sys/time.h>
-
 
 #define DECK_MAX_CNT 56
 #define PLAYER_MAX_CNT 4
@@ -27,7 +25,10 @@ int playerDeck[PLAYER_MAX_CNT][DECK_MAX_CNT]; //플레이어 4명의 덱
 int countcard[4] = { -1, -1, -1, -1 }; // 플레이어들이 낸 맨 앞 카드
 int collectcard[56] = { -1, }; // 쌓이는 카드들
 int collectnum = 0; // 쌓이는 횟수
-bool playerGameOvered[PLAYER_MAX_CNT] = {false, false, false, false}; //플레이어 4명이 게임오버인지 아닌지
+static bool playerGameOvered[PLAYER_MAX_CNT] = {false, false, false, false}; //플레이어 4명이 게임오버인지 아닌지
+static int playerRanking[PLAYER_MAX_CNT] = {1, 1, 1, 1}; //플레이어 4명의 등수
+static int gameOveredPlayers = 0; // 게임 오버된 플레이어의 수
+
 int start;
 
 // 함수 선언(C언어...)
@@ -284,26 +285,94 @@ void DrawPlayerCard2(int playerNum) //player가 낸 deck의 최상위 값 출력
 		}
 	}
 }
+int readline(int fd, char* buf, int nbyte){
+   int numread = 0;
+   int returnval;
+   while(numread < nbyte - 1) {
+      returnval = read(fd, buf + numread, 1);
+      numread++;
+      if(buf[numread - 1] == '\n'){
+         buf[numread] = '\0';
+         return numread;
+      }
+   }
+}
 
+void WriteRanking(){
+	int filedes;
+	char tmp[10];
+	char buffer[4][10];
+	int numread = 0;
+	int score;
+	int i;
+
+	filedes = open("ranking.txt", O_RDONLY);
+
+	for(i = 0; i < PLAYER_MAX_CNT; i++){
+		readline(filedes, tmp, sizeof(tmp));
+		strcat(buffer[i], tmp);
+	}
+	close(filedes);
+	
+	filedes = open("ranking.txt", O_WRONLY,O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
+	for(i = 0; i < PLAYER_MAX_CNT; i++){
+		score = atoi(buffer[i]); // 문자열을 int로
+		score += playerRanking[i];
+		sprintf(buffer[i], "%d", score); // int 형 score를 문자열로
+		strcat(buffer[i],"\n");
+		write(filedes, buffer[i], strlen(buffer[i]));
+	}
+	close(filedes);
+
+	// for(i = 0; i < PLAYER_MAX_CNT; i++){
+	// 	char buf[10];
+	// 	numread = 0; 
+	// 	while(numread < 10){
+	// 		read(filedes, buf + numread, 1);
+	// 		numread++;
+	// 		if (buf[numread-1] == '\n') {
+	// 			buf[numread-1] == '\0';
+	// 			score = atoi(buf); // 문자열을 int로
+	// 			score += (60 / playerRanking[i]);
+	// 			sprintf(buf, "%d", score); // int 형 score를 문자열로
+	// 			write(filedes, buf, strlen(buf));
+	// 			write(filedes, "\n", 1);
+	// 			break;			
+	// 		}  
+	// 	}
+	// }
+}
 // 한 사용자라도 카드가 0장인지 체크해서 게임이 끝났는지 확인
 bool CheckIfGameOver(){
-	int gameOveredPlayers = 0; // 게임 오버된 플레이어의 수
 	int i;
 	for(i = 0; i < PLAYER_MAX_CNT; i++){		
 		if(playerDeck[i][0] == -1){ // 맨 윗장이 비어있다면
-			playerGameOvered[i] = true;
+			if(playerGameOvered[i] == false){
+				playerGameOvered[i] = true;
+				playerRanking[i] = PLAYER_MAX_CNT - gameOveredPlayers;
+				printf("%d",playerRanking[i]);
+				printf("%d",playerRanking[i]);
+				printf("%d",playerRanking[i]);
+				printf("%d",playerRanking[i]);
+				printf("%d",playerRanking[i]);
+				printf("%d",playerRanking[i]);
+				printf("%d",playerRanking[i]);
+				gameOveredPlayers ++;
+			}
 		}
 	}	
-	for(i = 0; i < PLAYER_MAX_CNT; i++){		
-		if(playerGameOvered[i] == true){ 
-			gameOveredPlayers ++;
-		}
-		if(gameOveredPlayers == PLAYER_MAX_CNT - 1){
-			exit(0);
-		}
+	if(gameOveredPlayers == PLAYER_MAX_CNT - 1){
+		// for(i = 0; i < PLAYER_MAX_CNT; i++){		
+		// 	if(playerGameOvered[i] == false)
+		// 		playerRanking[i] = 1;
+		// }
+		WriteRanking();
+		return true;
+	}else{
+		return false;
 	}
-	return false;
 }
+
 
 // 실행시 생성자 역할
 void Init()
@@ -311,12 +380,14 @@ void Init()
 	int i;
 	for(i = 0; i < PLAYER_MAX_CNT; i++){
 		playerGameOvered[i] = false;
+		playerRanking[i] = 1;
 		countcard[i] = -1;
 		collectnum = 0;
 	}
 	for(i = 0; i < DECK_MAX_CNT; i++){
 		collectcard[i] = -1;
 	}
+	gameOveredPlayers =0 ;
 	Shuffle();
 }
 
