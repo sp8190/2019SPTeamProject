@@ -22,8 +22,7 @@
 #define MAX 2000
 
 char *user[4]; // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
-
-//일단 걍 전역으로 두겠음 
+int score[4]={0,0,0,0};
 int playerDeck[PLAYER_MAX_CNT][DECK_MAX_CNT]; //플레이어 4명의 덱
 int countcard[4] = { -1, -1, -1, -1 }; // 플레이어들이 낸 맨 앞 카드
 int collectcard[56] = { -1, }; // 쌓이는 카드들
@@ -52,32 +51,23 @@ void DrawScreen(){
 		//게임 화면 출력하고
 		system("clear");
 		printf("-------------------------------------------------------------------------------\n");
-		if(playerGameOvered)
-			printf("                          %s [ %d ]",user[0], DeckCount(playerDeck[0]));
+		printf("                          %s [ %d ]",user[0], DeckCount(playerDeck[0]));
 		printf("\n");				
 		printf("                          ");
 		DrawPlayerCard2(0); //player1 최상위 패출력
 		printf("\n");
 		printf("\n");
-		if(playerGameOvered)
-			printf(" %s [ %d ]",user[1], DeckCount(playerDeck[1]));
+		printf(" %s [ %d ]",user[1], DeckCount(playerDeck[1]));
 		DrawPlayerCard2(1);//player2 최상위 패출력
-		printf("                        ");
+		printf("                                  ");
 		DrawPlayerCard2(3);//player3 최상위 패출력
-		if(playerGameOvered && countcard[3]==-1)
-			printf("     ");
-		if(playerGameOvered && countcard[1]==-1)
-			printf("     ");
-		if(playerGameOvered)
-			printf(" [ %d ] %s",DeckCount(playerDeck[3]),user[3]);
+		printf(" [ %d ] %s",DeckCount(playerDeck[3]),user[3]);
 		printf("\n");
 		printf("\n");
 		printf("                          ");
-		if(playerGameOvered)
-			DrawPlayerCard2(2);//player4 최상위 패출력		
+		DrawPlayerCard2(2);//player4 최상위 패출력		
 		printf("\n");		
-		if(playerGameOvered)
-			printf("                           %s [ %d ]",user[2], DeckCount(playerDeck[2]));
+		printf("                           %s [ %d ]",user[2], DeckCount(playerDeck[2]));
 		printf("\n");		
 		printf("-------------------------------------------------------------------------------\n");
 		printf(" %s 의 차례입니다.\n", user[start]);
@@ -259,11 +249,14 @@ void Shuffle()
 void DrawPlayerCard2(int playerNum) //player가 낸 deck의 최상위 값 출력
 {
     //printf("플레이어 %d\n",playerNum+1);
-    if(countcard[playerNum] != -1) {
-    	if(playerGameOvered[playerNum]){
-    		printf(" [ Die ]");
-    	}
-    	else{
+	if(playerGameOvered[playerNum]){
+		if(playerNum==3)
+			printf("\b\b\b\b\b\b[ Die ]");
+		else
+			printf(" [ Die ]");			
+	}
+	else{
+	    if(countcard[playerNum] != -1) {
 		    int fruitCnt = GetFruitCnt(countcard[playerNum]); // 덱의 가장 앞에 있는 카드 출력
 		    char* fruitType;
 		    switch(GetFruitType(countcard[playerNum])){ 
@@ -306,7 +299,6 @@ bool CheckIfGameOver(){
 			gameOveredPlayers ++;
 		}
 		if(gameOveredPlayers == PLAYER_MAX_CNT - 1){
-			printf("게임 종료!\n");
 			exit(0);
 		}
 	}
@@ -338,6 +330,14 @@ static void myhandler (){
 			countcard[0] = printcard; // 1player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			start+=1;
+			if(start==PLAYER_MAX_CNT)
+				start=0;
+			while(playerGameOvered[start] == true){
+				start+=1;
+				if(start==PLAYER_MAX_CNT)
+					start=0;
+			}
 			DrawScreen();
 		}
 		break;
@@ -347,6 +347,14 @@ static void myhandler (){
 			countcard[1] = printcard; // 2player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			start+=1;
+			if(start==PLAYER_MAX_CNT)
+				start=0;
+			while(playerGameOvered[start] == true){
+				start+=1;
+				if(start==PLAYER_MAX_CNT)
+					start=0;
+			}
 			DrawScreen();
 		}
 		break;
@@ -356,6 +364,14 @@ static void myhandler (){
 			countcard[2] = printcard; // 3player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			start+=1;
+			if(start==PLAYER_MAX_CNT)
+				start=0;
+			while(playerGameOvered[start] == true){
+				start+=1;
+				if(start==PLAYER_MAX_CNT)
+					start=0;
+			}
 			DrawScreen();
 		}
 		break;
@@ -365,13 +381,18 @@ static void myhandler (){
 			countcard[3] = printcard; // 4player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
+			start+=1;
+			if(start==PLAYER_MAX_CNT)
+				start=0;
+			while(playerGameOvered[start] == true){
+				start+=1;
+				if(start==PLAYER_MAX_CNT)
+					start=0;
+			}
+			
 			DrawScreen();
 		}
 		break;
-	}
-	start+=1;
-	if(start==PLAYER_MAX_CNT){
-		start=0;
 	}
 }
 
