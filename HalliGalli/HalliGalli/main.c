@@ -911,18 +911,36 @@ void* InputGameKey(void *data)
 
 /*  메인 함수 ^^ */
 void main(void) {
-     	//초기 이름 할당
-	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
-	int i;
+ 	//초기 이름 할당
+ 	int fd, i, nowUser=0, tmp=0;
+ 	char buf[BUFSIZE];
+ 	char userName[4][BUFSIZE];
+	
+	//파일에서 받아와서 사용자이름들 파싱하기 (, 기준으로 끊는다)
+ 	if((fd=open("./userName.txt", O_RDONLY | O_CREAT))==-1){
+ 		printf("file open error");
+ 	}
+ 	read(fd, buf, BUFSIZE);
+ 	for(i=0; i<(int)strlen(buf); i++){
+ 		if(buf[i]==','){  // ,을 만나면 다 받은거임!
+ 			userName[nowUser++][tmp]=0;
+ 			tmp=0;
+ 		}
+ 		else{
+ 			userName[nowUser][tmp++]=buf[i]; // 내용추가해주기
+ 		}
+ 	}
+ 	close(fd);
+
+ 	//전역변수에 사용자의 이름들 복사해주기
 	for (i = 0; i < 4; i++) {
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
-		strcpy(user[i], defaultUserName[i]);
+		strcpy(user[i], userName[i]);
 	}
-
 
 	//메인 실행플로우
 	do {
-		system("clear");			
+		//system("clear");			
 		int select;
 		printf("할리갈리\n\n");
 		printf("1.게임 시작\n");
@@ -946,8 +964,17 @@ void main(void) {
 			printf("1에서 3까지의 번호를 선택해주세요.\n");
 	} while (1);
 
+	//사용자 이름 저장
+ 	if((fd=open("./userName.txt", O_WRONLY | O_EXCL))==-1){
+ 		printf("file open error");
+ 	}
+	for (i=0; i<4; i++){
+		write(fd, user[i], strlen(user[i]));
+		write(fd, ",", strlen(","));
+	}
 	//메모리 정리
-	for (int i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++) {
 		free(user[i]);
 	}
+	close(fd);
 }
