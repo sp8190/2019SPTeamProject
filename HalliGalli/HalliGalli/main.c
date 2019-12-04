@@ -483,6 +483,7 @@ void GameDescription() {
 /* halli galli 게임 시작하는함수 */
 void GameStart() {
 	pid_t childPid = fork();
+	srand((unsigned)time(NULL)); // 이거 빼먹음 ㅋㅋ ㅎㅎ ㅈㅅ!
 	start = rand() % PLAYER_MAX_CNT; // 여기서 안하니 출력화면이 자꾸 1번 플레이어임
 	int* childStat;
 	if (childPid == -1) { // fork error
