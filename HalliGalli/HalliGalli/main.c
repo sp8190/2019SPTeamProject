@@ -695,7 +695,7 @@ void* Gamescreen(void *data)
 				CheckIfGameOver();
 			}
 			else if (IsFiveFruits(countcard) == false) {
-				printf("오답! 플레이어 4 감점\n");
+				printf("오답! 플레이어 3 감점\n");
 				sleep(1);
 
 				for(i = 0; i < PLAYER_MAX_CNT; i++){
