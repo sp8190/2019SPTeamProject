@@ -483,6 +483,7 @@ void GameDescription() {
 /* halli galli 게임 시작하는함수 */
 void GameStart() {
 	pid_t childPid = fork();
+	start = rand() % PLAYER_MAX_CNT; // 여기서 안하니 출력화면이 자꾸 1번 플레이어임
 	int* childStat;
 	if (childPid == -1) { // fork error
 		perror("failed to fork");
@@ -496,7 +497,6 @@ void GameStart() {
 		pthread_t p_thread[2]; // pthread 2개 생성
 		int i;
 		int j;
-		start = rand() % PLAYER_MAX_CNT;
 		int key = 0; // 버튼 누른값
 		int count = 0; // 게임 끝나는 조건
 
