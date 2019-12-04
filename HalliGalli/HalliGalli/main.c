@@ -307,6 +307,8 @@ void WriteRanking(){
 	int i;
 
 	filedes = open("ranking.txt", O_RDONLY);
+	memset(buffer, 0, sizeof(buffer));
+	memset(tmp, 0, sizeof(tmp));
 
 	for(i = 0; i < PLAYER_MAX_CNT; i++){
 		readline(filedes, tmp, sizeof(tmp));
@@ -317,31 +319,14 @@ void WriteRanking(){
 	filedes = open("ranking.txt", O_WRONLY,O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
 	for(i = 0; i < PLAYER_MAX_CNT; i++){
 		score = atoi(buffer[i]); // 문자열을 int로
-		score += playerRanking[i];
+		score += 60/playerRanking[i];
 		sprintf(buffer[i], "%d", score); // int 형 score를 문자열로
 		strcat(buffer[i],"\n");
 		write(filedes, buffer[i], strlen(buffer[i]));
 	}
 	close(filedes);
-
-	// for(i = 0; i < PLAYER_MAX_CNT; i++){
-	// 	char buf[10];
-	// 	numread = 0; 
-	// 	while(numread < 10){
-	// 		read(filedes, buf + numread, 1);
-	// 		numread++;
-	// 		if (buf[numread-1] == '\n') {
-	// 			buf[numread-1] == '\0';
-	// 			score = atoi(buf); // 문자열을 int로
-	// 			score += (60 / playerRanking[i]);
-	// 			sprintf(buf, "%d", score); // int 형 score를 문자열로
-	// 			write(filedes, buf, strlen(buf));
-	// 			write(filedes, "\n", 1);
-	// 			break;			
-	// 		}  
-	// 	}
-	// }
 }
+
 // 한 사용자라도 카드가 0장인지 체크해서 게임이 끝났는지 확인
 bool CheckIfGameOver(){
 	int i;
@@ -350,22 +335,11 @@ bool CheckIfGameOver(){
 			if(playerGameOvered[i] == false){
 				playerGameOvered[i] = true;
 				playerRanking[i] = PLAYER_MAX_CNT - gameOveredPlayers;
-				printf("%d",playerRanking[i]);
-				printf("%d",playerRanking[i]);
-				printf("%d",playerRanking[i]);
-				printf("%d",playerRanking[i]);
-				printf("%d",playerRanking[i]);
-				printf("%d",playerRanking[i]);
-				printf("%d",playerRanking[i]);
 				gameOveredPlayers ++;
 			}
 		}
 	}	
 	if(gameOveredPlayers == PLAYER_MAX_CNT - 1){
-		// for(i = 0; i < PLAYER_MAX_CNT; i++){		
-		// 	if(playerGameOvered[i] == false)
-		// 		playerRanking[i] = 1;
-		// }
 		WriteRanking();
 		return true;
 	}else{
@@ -485,7 +459,7 @@ static int timetry(){
 // 종료할때 실행해서 여러가지 정리해주는 함수
 void ExitCleaner()
 {
-	
+
 }
 /* 사용자의 이름 수정 */
 void ModifyName() {
@@ -578,6 +552,7 @@ void GameStart() {
 	srand((unsigned)time(NULL)); // 이거 빼먹음 ㅋㅋ ㅎㅎ ㅈㅅ!
 	start = rand() % PLAYER_MAX_CNT; // 여기서 안하니 출력화면이 자꾸 1번 플레이어임
 	int* childStat;
+	atexit(ExitCleaner);
 	if (childPid == -1) { // fork error
 		perror("failed to fork");
 	}
@@ -911,36 +886,20 @@ void* InputGameKey(void *data)
 
 /*  메인 함수 ^^ */
 void main(void) {
- 	//초기 이름 할당
- 	int fd, i, nowUser=0, tmp=0;
- 	char buf[BUFSIZE];
- 	char userName[4][BUFSIZE];
-	
-	//파일에서 받아와서 사용자이름들 파싱하기 (, 기준으로 끊는다)
- 	if((fd=open("./userName.txt", O_RDONLY | O_CREAT))==-1){
- 		printf("file open error");
- 	}
- 	read(fd, buf, BUFSIZE);
- 	for(i=0; i<(int)strlen(buf); i++){
- 		if(buf[i]==','){  // ,을 만나면 다 받은거임!
- 			userName[nowUser++][tmp]=0;
- 			tmp=0;
- 		}
- 		else{
- 			userName[nowUser][tmp++]=buf[i]; // 내용추가해주기
- 		}
- 	}
- 	close(fd);
+     	//초기 이름 할당
+	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
+	int i;
+	int filedes;
 
- 	//전역변수에 사용자의 이름들 복사해주기
 	for (i = 0; i < 4; i++) {
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
-		strcpy(user[i], userName[i]);
+		strcpy(user[i], defaultUserName[i]);
 	}
+
 
 	//메인 실행플로우
 	do {
-		//system("clear");			
+		system("clear");			
 		int select;
 		printf("할리갈리\n\n");
 		printf("1.게임 시작\n");
@@ -964,17 +923,14 @@ void main(void) {
 			printf("1에서 3까지의 번호를 선택해주세요.\n");
 	} while (1);
 
-	//사용자 이름 저장
- 	if((fd=open("./userName.txt", O_WRONLY | O_EXCL))==-1){
- 		printf("file open error");
- 	}
-	for (i=0; i<4; i++){
-		write(fd, user[i], strlen(user[i]));
-		write(fd, ",", strlen(","));
-	}
 	//메모리 정리
-	for (i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++) {
 		free(user[i]);
 	}
-	close(fd);
+		
+	filedes = open("ranking.txt", O_WRONLY,O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
+	write(filedes, "0\n0\n0\n0\n", strlen("0\n0\n0\n0\n"));
+	close(filedes);
+
+	exit(0);
 }
