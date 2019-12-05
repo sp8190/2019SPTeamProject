@@ -935,7 +935,7 @@ void main(void) {
 		printf("2.사용자 이름 수정\n");
 		printf("3.게임 방법 설명\n");
 		printf("4.게임 종료\n");
-		printf("원하시는 항목의 키값을 눌러 주세요~");
+		printf("원하시는 항목의 키값을 눌러 주세요. ");
 		select = getch();
 		if (select == 49)
 			GameStart();
@@ -948,7 +948,7 @@ void main(void) {
 			break;
 		}
 		else
-			printf("1에서 3까지의 번호를 선택해주세요.\n");
+			printf("\n1에서 4까지의 번호를 선택해주세요.\n");
 	}
 
 	//메모리 정리
