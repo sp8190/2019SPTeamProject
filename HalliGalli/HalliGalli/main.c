@@ -19,6 +19,8 @@
 #define BUFSIZE 128
 #define MAX 2000
 
+//전역 변수들
+pthread_t p_thread[3]; // pthread 3개 생성
 char *user[4]; // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
 int score[4]={0,0,0,0};
 int playerDeck[PLAYER_MAX_CNT][DECK_MAX_CNT]; //플레이어 4명의 덱
@@ -45,10 +47,10 @@ void GameStart();
 int getch(void);
 void* Gamescreen(void *data);
 void* InputGameKey(void *data);
-void DrawScreen();
+void* DrawScreen();
 
 /* 화면 그려주는 함수 */
-void DrawScreen(){
+void* DrawScreen(){
 		//게임 화면 출력하고
 		system("clear");
 		printf("-------------------------------------------------------------------------------\n");
@@ -383,7 +385,8 @@ static void myhandler (){
 				if(start==PLAYER_MAX_CNT)
 					start=0;
 			}
-			DrawScreen();
+			pthread_join(p_thread[2],NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 		}
 		break;
 	case 1: // 2player
@@ -400,7 +403,8 @@ static void myhandler (){
 				if(start==PLAYER_MAX_CNT)
 					start=0;
 			}
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 		}
 		break;
 	case 2: // 3player
@@ -417,7 +421,8 @@ static void myhandler (){
 				if(start==PLAYER_MAX_CNT)
 					start=0;
 			}
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 		}
 		break;
 	case 3: // 4player
@@ -435,7 +440,8 @@ static void myhandler (){
 					start=0;
 			}
 			
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 		}
 		break;
 	}
@@ -559,10 +565,10 @@ void GameStart() {
 	else if (childPid == 0) { // 자식 코드. 게임이 실행되는 프로세스
 	   //게임 화면 출력하고
 		Init(); // 생성자
-		DrawScreen();
+
+		pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 
 		//쓰레드 두개 돌려서 게임이 진행되는 부분과 입력을 받는 부분으로 나눈다
-		pthread_t p_thread[2]; // pthread 2개 생성
 		int i;
 		int j;
 		int key = 0; // 버튼 누른값
@@ -655,7 +661,8 @@ void* Gamescreen(void *data)
 			countcard[0] = printcard; // 1player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -666,7 +673,8 @@ void* Gamescreen(void *data)
 			countcard[1] = printcard; // 2player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -677,7 +685,8 @@ void* Gamescreen(void *data)
 			countcard[2] = printcard; // 3player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -688,7 +697,8 @@ void* Gamescreen(void *data)
 			countcard[3] = printcard; // 4player 앞에 놓여진 카드
 			collectcard[collectnum] = printcard;
 			collectnum++;
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -715,12 +725,16 @@ void* Gamescreen(void *data)
 						}
 					} else{ // 덱이 전부 비었다면
 						if(CheckIfGameOver()){ // 이 플레이어의 패배를 기록하고, 모든 게임이 끝났는지 확인한다.
+							pthread_cancel(p_thread[0]);
+							pthread_cancel(p_thread[1]);
+							pthread_cancel(p_thread[2]);
 							exit(0);
 						}
 					}
 				}
 			}
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -741,12 +755,16 @@ void* Gamescreen(void *data)
 						}
 					} else{
 						if(CheckIfGameOver()){
+							pthread_cancel(p_thread[0]);
+							pthread_cancel(p_thread[1]);
+							pthread_cancel(p_thread[2]);
 							exit(0);
 						}
 					}
 				}
 			}
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -768,12 +786,16 @@ void* Gamescreen(void *data)
 						}
 					}else {
 						if(CheckIfGameOver()){
+							pthread_cancel(p_thread[0]);
+							pthread_cancel(p_thread[1]);
+							pthread_cancel(p_thread[2]);
 							exit(0);
 						}
 					}
 				}
 			}
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -795,12 +817,16 @@ void* Gamescreen(void *data)
 						}
 					} else{
 						if(CheckIfGameOver()){
+							pthread_cancel(p_thread[0]);
+							pthread_cancel(p_thread[1]);
+							pthread_cancel(p_thread[2]);
 							exit(0);
 						}
 					}
 				}
 			}
-			DrawScreen();
+			pthread_join(p_thread[2], NULL);
+			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
 			timetry();
 		}
 		break;
@@ -820,6 +846,9 @@ void* Gamescreen(void *data)
 
 	printf("\n");
 	if(CheckIfGameOver()){
+		pthread_cancel(p_thread[0]);
+		pthread_cancel(p_thread[1]);
+		pthread_cancel(p_thread[2]);
 		exit(0);
 	}
 }
@@ -890,6 +919,7 @@ void main(void) {
 	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
 	int i;
 	int filedes;
+	int select = 0;
 
 	for (i = 0; i < 4; i++) {
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
@@ -898,30 +928,28 @@ void main(void) {
 
 
 	//메인 실행플로우
-	do {
-		system("clear");			
-		int select;
+	while(1){
+		system("clear");
 		printf("할리갈리\n\n");
 		printf("1.게임 시작\n");
 		printf("2.사용자 이름 수정\n");
 		printf("3.게임 방법 설명\n");
 		printf("4.게임 종료\n");
-		printf("원하시는 항목을 선택해주세요.:");
-		scanf("%d", &select);
-
-		if (select == 1)
+		printf("원하시는 항목의 키값을 눌러 주세요~");
+		select = getch();
+		if (select == 49)
 			GameStart();
-		else if (select == 2)
+		else if (select == 50)
 			ModifyName();
-		else if (select == 3)
+		else if (select == 51)
 			GameDescription();
-		else if (select == 4) {
+		else if (select == 52) {
 			printf("게임을 종료합니다.\n");
 			break;
 		}
 		else
 			printf("1에서 3까지의 번호를 선택해주세요.\n");
-	} while (1);
+	}
 
 	//메모리 정리
 	for (int i = 0; i < 4; i++) {
