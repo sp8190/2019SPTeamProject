@@ -534,8 +534,8 @@ void ModifyName() {
 void GameDescription() {
 	char buffer[MAX];
 	int readn = 0;
-	int fp; 
-	char touch;
+	int fp = 0; 
+	char touch = 0;
 	system("clear");
 	fp = open("description.txt", O_RDONLY);//읽기 전용으로 파일을 읽는다.
 	if (fp < 0) {//에러 메시지 호출
