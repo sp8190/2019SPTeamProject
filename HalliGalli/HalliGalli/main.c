@@ -17,7 +17,7 @@
 #define PLAYER_MAX_CNT 4
 #define MAX_NAME_LENGTH 10   // 10글자 제한으로 잡았으나, 한글을 고려하여 20을 잡음
 #define BUFSIZE 128
-#define MAX 2000
+#define MAX 1750
 
 //전역 변수들
 pthread_t p_thread[3]; // pthread 3개 생성
