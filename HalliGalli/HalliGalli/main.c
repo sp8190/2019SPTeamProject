@@ -246,7 +246,7 @@ void Shuffle()
 
 // void gotoxy(int x,int y) // 필요하면 주석 풀고 쓰면 됨
 // {
-//     printf("%c[%d;%df",0x1B,y,x);
+//     printf("%c[% d;%df",0x1B,y,x);
 // }
 
 void DrawPlayerCard2(int playerNum) //player가 낸 deck의 최상위 값 출력
@@ -327,7 +327,7 @@ void WriteRanking(){
 		write(filedes, buffer[i], strlen(buffer[i]));
 	}
 	printf("\n %s: %s %s: %s %s: %s %s: %s",user[0],buffer[0],user[1], buffer[1],user[2],buffer[2], user[3],buffer[3]);
-	//printf("")
+	sleep(1);
 	close(filedes);
 }
 
@@ -345,8 +345,7 @@ bool CheckIfGameOver(){
 	}	
 	if(gameOveredPlayers == PLAYER_MAX_CNT - 1){
 		WriteRanking();
-		sleep(2);
-		
+
 		return true;
 	}else{
 		return false;
@@ -667,6 +666,7 @@ void* Gamescreen(void *data)
 			collectnum++;
 			pthread_join(p_thread[2], NULL);
 			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
+			CheckIfGameOver();
 			timetry();
 		}
 		break;
@@ -679,7 +679,9 @@ void* Gamescreen(void *data)
 			collectnum++;
 			pthread_join(p_thread[2], NULL);
 			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
+			CheckIfGameOver();
 			timetry();
+			
 		}
 		break;
 	case 46: // 3player
@@ -691,7 +693,9 @@ void* Gamescreen(void *data)
 			collectnum++;
 			pthread_join(p_thread[2], NULL);
 			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
+			CheckIfGameOver();
 			timetry();
+			
 		}
 		break;
 	case 91: // 4player
@@ -703,6 +707,7 @@ void* Gamescreen(void *data)
 			collectnum++;
 			pthread_join(p_thread[2], NULL);
 			pthread_create(&p_thread[2], NULL, DrawScreen, NULL);
+			CheckIfGameOver();
 			timetry();
 		}
 		break;
