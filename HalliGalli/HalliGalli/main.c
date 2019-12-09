@@ -326,8 +326,6 @@ void WriteRanking(){
 		strcat(buffer[i],"\n");
 		write(filedes, buffer[i], strlen(buffer[i]));
 	}
-	printf("\n %s: %s %s: %s %s: %s %s: %s",user[0],buffer[0],user[1], buffer[1],user[2],buffer[2], user[3],buffer[3]);
-	//printf("")
 	close(filedes);
 }
 
@@ -345,8 +343,6 @@ bool CheckIfGameOver(){
 	}	
 	if(gameOveredPlayers == PLAYER_MAX_CNT - 1){
 		WriteRanking();
-		sleep(2);
-		
 		return true;
 	}else{
 		return false;
@@ -629,7 +625,7 @@ void GameStart() {
 	}
 	else { // 부모 코드
 		wait(childStat); // 부모 프로세스는 자식이 종료될 때 까지 기다림
-		//printf("부모의 종료");
+		printf("부모의 종료");
 	}
 }
 
