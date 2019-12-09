@@ -625,7 +625,7 @@ void GameStart() {
 	}
 	else { // 부모 코드
 		wait(childStat); // 부모 프로세스는 자식이 종료될 때 까지 기다림
-		printf("부모의 종료");
+		//printf("부모의 종료");
 	}
 }
 
