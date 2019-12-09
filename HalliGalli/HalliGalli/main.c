@@ -915,17 +915,28 @@ void* InputGameKey(void *data)
 
 /*  메인 함수 ^^ */
 void main(void) {
-     	//초기 이름 할당
+     //초기 이름 할당
 	char *defaultUserName[4] = { "사용자1", "사용자2", "사용자3", "사용자4"};
 	int i;
 	int filedes;
 	int select = 0;
 
-	for (i = 0; i < 4; i++) {
+	int fd, nowUser=0, tmp=0;
+	char buf[BUFSIZE];
+	char userName[4][BUFSIZE];
+
+	//사용자 txt파일 초기화
+	if((fd=open("./userName.txt", O_WRONLY | O_EXCL | O_TRUNC))==-1){
+		printf("file open error");
+	}
+	for(i=0;i<4; i++){
+		//사용자 txt파일 작성
+		write(fd, defaultUserName[i], strlen(defaultUserName[i]));
+		write(fd, ",", strlen(","));
+		//사용자 이름 초기할당
 		user[i] = (char*)malloc(sizeof(char)*BUFSIZE);
 		strcpy(user[i], defaultUserName[i]);
 	}
-
 
 	//메인 실행플로우
 	while(1){
@@ -955,7 +966,15 @@ void main(void) {
 	for (int i = 0; i < 4; i++) {
 		free(user[i]);
 	}
-		
+	
+	if((fd==open("./userName.txt", O_WRONLY | O_TRUNC))==-1){
+		printf("file open error");
+	}
+	for(i=0; i<4; i++){
+		//사용자 txt파일 작성
+		write(fd, defaultUserName[i], strlen(defaultUserName[i]));
+		write(fd, ",", strlen(","));
+	}
 	filedes = open("ranking.txt", O_WRONLY,O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
 	write(filedes, "0\n0\n0\n0\n", strlen("0\n0\n0\n0\n"));
 	close(filedes);
