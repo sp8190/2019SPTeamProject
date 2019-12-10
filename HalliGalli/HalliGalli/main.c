@@ -146,7 +146,7 @@ int GetFruitType(int index) {
 /* 필드에 놓여있는 카드배열들인 field 들을 얻은 사용자의 덱인 deck에 추가함  */
 void TakeCardsInField(int *deck, int *field) {
 	int i;
-	int deckcount = 0, fieldcount = 0; // 어디서 0이 체크가 되는가
+	int deckcount = 0// 어디서 0이 체크가 되는가
 	int decksize = sizeof(deck) / sizeof(deck[0]); // deck 배열의 크기
 	int fieldsize = sizeof(field) / sizeof(field[0]); // field 배열의 크기
 
