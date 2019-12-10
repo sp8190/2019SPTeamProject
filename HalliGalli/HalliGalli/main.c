@@ -318,7 +318,7 @@ void WriteRanking(){
 	}
 	close(filedes);
 	
-	filedes = open("ranking.txt", O_WRONLY,O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
+	filedes = open("ranking.txt", O_WRONLY | O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
 	for(i = 0; i < PLAYER_MAX_CNT; i++){
 		score = atoi(buffer[i]); // 문자열을 int로
 		score += 60/playerRanking[i];
@@ -462,6 +462,11 @@ static int timetry(){
 	return setitimer(ITIMER_REAL, &value, NULL);
 }
 
+// 종료할때 실행해서 여러가지 정리해주는 함수
+void ExitCleaner()
+{
+
+}
 /* 사용자의 이름 수정 */
 void ModifyName() {
 	/* 사용자의 디폴트 네임 */
@@ -553,6 +558,7 @@ void GameStart() {
 	srand((unsigned)time(NULL)); // 이거 빼먹음 ㅋㅋ ㅎㅎ ㅈㅅ!
 	start = rand() % PLAYER_MAX_CNT; // 여기서 안하니 출력화면이 자꾸 1번 플레이어임
 	int* childStat;
+	atexit(ExitCleaner);
 	if (childPid == -1) { // fork error
 		perror("failed to fork");
 	}
@@ -969,13 +975,9 @@ void main(void) {
 		write(fd, defaultUserName[i], strlen(defaultUserName[i]));
 		write(fd, ",", strlen(","));
 	}
-	close(fd);
-
-	fd = open("ranking.txt", O_WRONLY | O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
-	for(i = 0; i < PLAYER_MAX_CNT; i++){
-		write(fd, "0\n", strlen("0\n"));
-	}
-	close(fd);
+	filedes = open("ranking.txt", O_WRONLY | O_TRUNC); // 파일을 새로 열면서 내용은 비워줌
+	write(filedes, "0\n0\n0\n0\n", strlen("0\n0\n0\n0\n"));
+	close(filedes);
 
 	exit(0);
 }
